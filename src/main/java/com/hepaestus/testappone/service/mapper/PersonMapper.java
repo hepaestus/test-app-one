@@ -11,4 +11,9 @@ import org.mapstruct.*;
 public interface PersonMapper extends EntityMapper<PersonDTO, Person> {
     @Mapping(target = "car", source = "car", qualifiedByName = "id")
     PersonDTO toDto(Person s);
+
+    @Named("id")
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(target = "id", source = "id")
+    PersonDTO toDtoId(Person person);
 }

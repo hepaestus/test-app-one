@@ -22,19 +22,10 @@
         <dd>
           <span>{{ car.model }}</span>
         </dd>
-
         <dt><span>Driver</span></dt>
         <dd>
           <div *ngIf="car.driver">
             <a [routerLink]="['/driver', car.driver?.id, 'view']">{{ car.driver?.id }}</a>
-          </div>
-        </dd>
-
-        <dt *ngIf="car.passengers"><span>Passengers</span></dt>
-        <dd>
-          <div>
-            <a *ngFor="let passenger of car.passengers" [routerLink]="['/person', passenger.id, 'view']">{{
-              passenger?.name}}</a>
           </div>
         </dd>
       </dl>

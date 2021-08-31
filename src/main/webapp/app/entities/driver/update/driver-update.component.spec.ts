@@ -9,6 +9,8 @@ import { of, Subject } from 'rxjs';
 
 import { DriverService } from '../service/driver.service';
 import { IDriver, Driver } from '../driver.model';
+import { IPerson } from 'app/entities/person/person.model';
+import { PersonService } from 'app/entities/person/service/person.service';
 
 import { DriverUpdateComponent } from './driver-update.component';
 
@@ -18,6 +20,7 @@ describe('Component Tests', () => {
     let fixture: ComponentFixture<DriverUpdateComponent>;
     let activatedRoute: ActivatedRoute;
     let driverService: DriverService;
+    let personService: PersonService;
 
     beforeEach(() => {
       TestBed.configureTestingModule({
@@ -31,18 +34,40 @@ describe('Component Tests', () => {
       fixture = TestBed.createComponent(DriverUpdateComponent);
       activatedRoute = TestBed.inject(ActivatedRoute);
       driverService = TestBed.inject(DriverService);
+      personService = TestBed.inject(PersonService);
 
       comp = fixture.componentInstance;
     });
 
     describe('ngOnInit', () => {
+      it('Should call person query and add missing value', () => {
+        const driver: IDriver = { id: 456 };
+        const person: IPerson = { id: 22415 };
+        driver.person = person;
+
+        const personCollection: IPerson[] = [{ id: 46976 }];
+        jest.spyOn(personService, 'query').mockReturnValue(of(new HttpResponse({ body: personCollection })));
+        const expectedCollection: IPerson[] = [person, ...personCollection];
+        jest.spyOn(personService, 'addPersonToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+        activatedRoute.data = of({ driver });
+        comp.ngOnInit();
+
+        expect(personService.query).toHaveBeenCalled();
+        expect(personService.addPersonToCollectionIfMissing).toHaveBeenCalledWith(personCollection, person);
+        expect(comp.peopleCollection).toEqual(expectedCollection);
+      });
+
       it('Should update editForm', () => {
         const driver: IDriver = { id: 456 };
+        const person: IPerson = { id: 4175 };
+        driver.person = person;
 
         activatedRoute.data = of({ driver });
         comp.ngOnInit();
 
         expect(comp.editForm.value).toEqual(expect.objectContaining(driver));
+        expect(comp.peopleCollection).toContain(person);
       });
     });
 
@@ -107,6 +132,16 @@ describe('Component Tests', () => {
         expect(driverService.update).toHaveBeenCalledWith(driver);
         expect(comp.isSaving).toEqual(false);
         expect(comp.previousState).not.toHaveBeenCalled();
+      });
+    });
+
+    describe('Tracking relationships identifiers', () => {
+      describe('trackPersonById', () => {
+        it('Should return tracked Person primary key', () => {
+          const entity = { id: 123 };
+          const trackResult = comp.trackPersonById(0, entity);
+          expect(trackResult).toEqual(entity.id);
+        });
       });
     });
   });

@@ -12,6 +12,8 @@ public class DriverDTO implements Serializable {
 
     private String licenseNumber;
 
+    private PersonDTO person;
+
     public Long getId() {
         return id;
     }
@@ -26,6 +28,14 @@ public class DriverDTO implements Serializable {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
+    }
+
+    public PersonDTO getPerson() {
+        return person;
+    }
+
+    public void setPerson(PersonDTO person) {
+        this.person = person;
     }
 
     @Override
@@ -55,6 +65,7 @@ public class DriverDTO implements Serializable {
         return "DriverDTO{" +
             "id=" + getId() +
             ", licenseNumber='" + getLicenseNumber() + "'" +
+            ", person=" + getPerson() +
             "}";
     }
 }

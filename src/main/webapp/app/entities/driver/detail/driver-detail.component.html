@@ -18,6 +18,12 @@
         <dd>
           <span>{{ driver.licenseNumber }}</span>
         </dd>
+        <dt><span>Person</span></dt>
+        <dd>
+          <div *ngIf="driver.person">
+            <a [routerLink]="['/person', driver.person?.id, 'view']">{{ driver.person?.id }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">

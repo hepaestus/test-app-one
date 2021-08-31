@@ -52,6 +52,10 @@ entity Driver {
 }
 
 relationship OneToOne{
+  Driver{person} to Person  
+}
+
+relationship OneToOne{
   Car{driver} to Driver
 }
 

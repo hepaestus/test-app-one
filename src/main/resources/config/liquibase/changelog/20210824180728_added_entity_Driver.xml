@@ -17,6 +17,9 @@
             <column name="license_number" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
+            <column name="person_id" type="bigint">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_driver__person_id" />
+            </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
     </changeSet>

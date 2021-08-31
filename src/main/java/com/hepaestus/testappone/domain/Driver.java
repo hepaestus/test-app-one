@@ -1,5 +1,6 @@
 package com.hepaestus.testappone.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import javax.persistence.*;
 import org.hibernate.annotations.Cache;
@@ -21,6 +22,11 @@ public class Driver implements Serializable {
 
     @Column(name = "license_number")
     private String licenseNumber;
+
+    @JsonIgnoreProperties(value = { "car" }, allowSetters = true)
+    @OneToOne
+    @JoinColumn(unique = true)
+    private Person person;
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
     public Long getId() {
@@ -47,6 +53,19 @@ public class Driver implements Serializable {
 
     public void setLicenseNumber(String licenseNumber) {
         this.licenseNumber = licenseNumber;
+    }
+
+    public Person getPerson() {
+        return this.person;
+    }
+
+    public Driver person(Person person) {
+        this.setPerson(person);
+        return this;
+    }
+
+    public void setPerson(Person person) {
+        this.person = person;
     }
 
     // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here

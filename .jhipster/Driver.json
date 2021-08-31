@@ -6,7 +6,15 @@
       "fieldType": "String"
     }
   ],
-  "relationships": [],
+  "relationships": [
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "person",
+      "otherEntityRelationshipName": "driver",
+      "relationshipName": "person",
+      "ownerSide": true
+    }
+  ],
   "entityTableName": "driver",
   "dto": "mapstruct",
   "pagination": "no",

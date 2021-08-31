@@ -28,6 +28,7 @@ public class Car implements Serializable {
     @Column(name = "model")
     private String model;
 
+    @JsonIgnoreProperties(value = { "person" }, allowSetters = true)
     @OneToOne
     @JoinColumn(unique = true)
     private Driver driver;

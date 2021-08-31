@@ -34,6 +34,7 @@
         <tr>
           <th scope="col"><span>ID</span></th>
           <th scope="col"><span>License Number</span></th>
+          <th scope="col"><span>Person</span></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -43,6 +44,11 @@
             <a [routerLink]="['/driver', driver.id, 'view']">{{ driver.id }}</a>
           </td>
           <td>{{ driver.licenseNumber }}</td>
+          <td>
+            <div *ngIf="driver.person">
+              <a [routerLink]="['/person', driver.person?.id, 'view']">{{ driver.person?.id }}</a>
+            </div>
+          </td>
           <td class="text-right">
             <div class="btn-group">
               <button type="submit" [routerLink]="['/driver', driver.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
