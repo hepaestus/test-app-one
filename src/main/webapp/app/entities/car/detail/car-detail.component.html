@@ -28,6 +28,13 @@
             <a [routerLink]="['/driver', car.driver?.id, 'view']">{{ car.driver?.id }}</a>
           </div>
         </dd>
+
+        <dt><span>Passengers</span></dt>
+        <dd>
+          <div *ngIf="car.passengers">
+            <a *ngFor="let each of car.passengers" [routerLink]="['/person', each.id, 'view']">{{ each.name }}</a>
+          </div>
+        </dd>
       </dl>
 
       <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
