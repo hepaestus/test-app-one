@@ -1,0 +1,79 @@
+package com.hepaestus.testappone.domain;
+
+import java.io.Serializable;
+import javax.persistence.*;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+
+/**
+ * A Driver.
+ */
+@Entity
+@Table(name = "driver")
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+public class Driver implements Serializable {
+
+    private static final long serialVersionUID = 1L;
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(name = "license_number")
+    private String licenseNumber;
+
+    // jhipster-needle-entity-add-field - JHipster will add fields here
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public Driver id(Long id) {
+        this.id = id;
+        return this;
+    }
+
+    public String getLicenseNumber() {
+        return this.licenseNumber;
+    }
+
+    public Driver licenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+        return this;
+    }
+
+    public void setLicenseNumber(String licenseNumber) {
+        this.licenseNumber = licenseNumber;
+    }
+
+    // jhipster-needle-entity-add-getters-setters - JHipster will add getters and setters here
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (!(o instanceof Driver)) {
+            return false;
+        }
+        return id != null && id.equals(((Driver) o).id);
+    }
+
+    @Override
+    public int hashCode() {
+        // see https://vladmihalcea.com/how-to-implement-equals-and-hashcode-using-the-jpa-entity-identifier/
+        return getClass().hashCode();
+    }
+
+    // prettier-ignore
+    @Override
+    public String toString() {
+        return "Driver{" +
+            "id=" + getId() +
+            ", licenseNumber='" + getLicenseNumber() + "'" +
+            "}";
+    }
+}

@@ -1,0 +1,38 @@
+{
+  "name": "Car",
+  "fields": [
+    {
+      "fieldName": "make",
+      "fieldType": "String"
+    },
+    {
+      "fieldName": "model",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "driver",
+      "otherEntityRelationshipName": "car",
+      "relationshipName": "driver",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "person",
+      "otherEntityRelationshipName": "car",
+      "relationshipName": "passengers"
+    }
+  ],
+  "entityTableName": "car",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": ["testAppOne"],
+  "changelogDate": "20210824180528"
+}

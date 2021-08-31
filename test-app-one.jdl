@@ -1,0 +1,62 @@
+application {
+  config {
+    applicationType monolith
+    authenticationType jwt
+    baseName testAppOne
+    blueprints []
+    buildTool maven
+    cacheProvider ehcache
+    clientFramework angularX
+    clientPackageManager npm
+    clientTheme none
+    creationTimestamp 1629828268927
+    databaseType sql
+    devDatabaseType mysql
+    dtoSuffix DTO
+    enableHibernateCache true
+    enableSwaggerCodegen false
+    enableTranslation false
+    jhiPrefix jhi
+    jhipsterVersion "7.1.0"
+    jwtSecretKey "ZGNlYTg3YTQ5NmQ1Yjk4ODgzMTRiOGU0NDgzMGQxMmJhMjczYjA1NWQ1OTMzMDJkOTNiN2NlMzU0MzNlNGE3MTA1MTgyMjY4M2RjMWMzYjU0NThlYWM1NWVkYmQzNDRjN2NlOWY1YWQ5NTdiMjQ1ZWMzOTQwNmQ1Y2YxMzdhZTc="
+    languages [en, fr]
+    messageBroker false
+    nativeLanguage en
+    otherModules []
+    packageName com.hepaestus.testappone
+    prodDatabaseType mysql
+    reactive false
+    searchEngine false
+    serverPort 8080
+    serviceDiscoveryType false
+    skipClient false
+    skipServer false
+    skipUserManagement false
+    testFrameworks []
+    websocket false
+    withAdminUi true
+  }
+  entities *
+}
+entity Car {
+  make String
+  model String
+}
+
+entity Person {
+  name String
+}
+
+entity Driver {
+  licenseNumber String  
+}
+
+relationship OneToOne{
+  Car{driver} to Driver
+}
+
+relationship OneToMany{    
+  Car{passengers} to Person
+}
+
+dto * with mapstruct

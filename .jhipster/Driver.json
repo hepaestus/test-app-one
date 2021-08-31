@@ -1,0 +1,20 @@
+{
+  "name": "Driver",
+  "fields": [
+    {
+      "fieldName": "licenseNumber",
+      "fieldType": "String"
+    }
+  ],
+  "relationships": [],
+  "entityTableName": "driver",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": ["testAppOne"],
+  "changelogDate": "20210824180728"
+}
