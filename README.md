@@ -4,6 +4,15 @@ This application was generated using JHipster 7.1.0, you can find documentation 
 
 ## Development
 
+### MySQL Set up
+For this sample project run the following to create the necessary Mysql environment:
+  ```bash
+  sudo mysql -e "CREATE USER 'testy'@'localhost';"
+  sudo mysql -e "GRANT ALL privileges ON testAppOne.* TO 'testy'@'localhost';"
+  sudo mysql -e "ALTER USER 'testy'@'localhost' IDENTIFIED BY 'testAppOne';"
+  ```
+
+### JH Setup
 Before you can build this project, you must install and configure the following dependencies on your machine:
 
 1. [Node.js][]: We use Node to run a development web server and build the project.
