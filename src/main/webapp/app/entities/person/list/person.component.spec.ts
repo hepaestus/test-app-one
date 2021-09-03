@@ -1,6 +1,9 @@
+jest.mock('@angular/router');
+
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { HttpHeaders, HttpResponse } from '@angular/common/http';
 import { HttpClientTestingModule } from '@angular/common/http/testing';
+import { ActivatedRoute } from '@angular/router';
 import { of } from 'rxjs';
 
 import { PersonService } from '../service/person.service';
@@ -17,6 +20,12 @@ describe('Component Tests', () => {
       TestBed.configureTestingModule({
         imports: [HttpClientTestingModule],
         declarations: [PersonComponent],
+        providers: [
+          {
+            provide: ActivatedRoute,
+            useValue: { snapshot: { queryParams: {} } },
+          },
+        ],
       })
         .overrideTemplate(PersonComponent, '')
         .compileComponents();

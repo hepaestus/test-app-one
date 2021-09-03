@@ -1,15 +1,21 @@
 package com.hepaestus.testappone.service;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import com.hepaestus.testappone.domain.Person;
 import com.hepaestus.testappone.repository.PersonRepository;
+import com.hepaestus.testappone.repository.search.PersonSearchRepository;
 import com.hepaestus.testappone.service.dto.PersonDTO;
 import com.hepaestus.testappone.service.mapper.PersonMapper;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,9 +32,12 @@ public class PersonService {
 
     private final PersonMapper personMapper;
 
-    public PersonService(PersonRepository personRepository, PersonMapper personMapper) {
+    private final PersonSearchRepository personSearchRepository;
+
+    public PersonService(PersonRepository personRepository, PersonMapper personMapper, PersonSearchRepository personSearchRepository) {
         this.personRepository = personRepository;
         this.personMapper = personMapper;
+        this.personSearchRepository = personSearchRepository;
     }
 
     /**
@@ -41,7 +50,9 @@ public class PersonService {
         log.debug("Request to save Person : {}", personDTO);
         Person person = personMapper.toEntity(personDTO);
         person = personRepository.save(person);
-        return personMapper.toDto(person);
+        PersonDTO result = personMapper.toDto(person);
+        personSearchRepository.save(person);
+        return result;
     }
 
     /**
@@ -63,6 +74,13 @@ public class PersonService {
                 }
             )
             .map(personRepository::save)
+            .map(
+                savedPerson -> {
+                    personSearchRepository.save(savedPerson);
+
+                    return savedPerson;
+                }
+            )
             .map(personMapper::toDto);
     }
 
@@ -74,7 +92,34 @@ public class PersonService {
     @Transactional(readOnly = true)
     public List<PersonDTO> findAll() {
         log.debug("Request to get all People");
-        return personRepository.findAll().stream().map(personMapper::toDto).collect(Collectors.toCollection(LinkedList::new));
+        return personRepository
+            .findAllWithEagerRelationships()
+            .stream()
+            .map(personMapper::toDto)
+            .collect(Collectors.toCollection(LinkedList::new));
+    }
+
+    /**
+     * Get all the people with eager load of many-to-many relationships.
+     *
+     * @return the list of entities.
+     */
+    public Page<PersonDTO> findAllWithEagerRelationships(Pageable pageable) {
+        return personRepository.findAllWithEagerRelationships(pageable).map(personMapper::toDto);
+    }
+
+    /**
+     *  Get all the people where Driver is {@code null}.
+     *  @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<PersonDTO> findAllWhereDriverIsNull() {
+        log.debug("Request to get all people where Driver is null");
+        return StreamSupport
+            .stream(personRepository.findAll().spliterator(), false)
+            .filter(person -> person.getDriver() == null)
+            .map(personMapper::toDto)
+            .collect(Collectors.toCollection(LinkedList::new));
     }
 
     /**
@@ -86,7 +131,7 @@ public class PersonService {
     @Transactional(readOnly = true)
     public Optional<PersonDTO> findOne(Long id) {
         log.debug("Request to get Person : {}", id);
-        return personRepository.findById(id).map(personMapper::toDto);
+        return personRepository.findOneWithEagerRelationships(id).map(personMapper::toDto);
     }
 
     /**
@@ -97,5 +142,21 @@ public class PersonService {
     public void delete(Long id) {
         log.debug("Request to delete Person : {}", id);
         personRepository.deleteById(id);
+        personSearchRepository.deleteById(id);
+    }
+
+    /**
+     * Search for the person corresponding to the query.
+     *
+     * @param query the query of the search.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<PersonDTO> search(String query) {
+        log.debug("Request to search People for query {}", query);
+        return StreamSupport
+            .stream(personSearchRepository.search(queryStringQuery(query)).spliterator(), false)
+            .map(personMapper::toDto)
+            .collect(Collectors.toList());
     }
 }

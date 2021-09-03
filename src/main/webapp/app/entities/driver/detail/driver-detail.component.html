@@ -21,7 +21,7 @@
         <dt><span>Person</span></dt>
         <dd>
           <div *ngIf="driver.person">
-            <a [routerLink]="['/person', driver.person?.id, 'view']">{{ driver.person?.id }}</a>
+            <a [routerLink]="['/person', driver.person?.id, 'view']">{{ driver.person?.name }}</a>
           </div>
         </dd>
       </dl>

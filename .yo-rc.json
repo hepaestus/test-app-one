@@ -18,7 +18,7 @@
     "languages": ["en", "fr"],
     "messageBroker": false,
     "prodDatabaseType": "mysql",
-    "searchEngine": false,
+    "searchEngine": "elasticsearch",
     "skipClient": false,
     "testFrameworks": [],
     "websocket": false,
@@ -38,12 +38,12 @@
     "skipServer": false,
     "entitySuffix": "",
     "applicationIndex": 0,
-    "entities": ["Car", "Person", "Driver"],
+    "entities": ["Car", "Person", "Shoe", "Driver"],
     "clientThemeVariant": "",
     "skipCheckLengthOfIdentifier": false,
     "skipFakeData": false,
     "pages": [],
     "devServerPort": 4200,
-    "lastLiquibaseTimestamp": 1629828448000
+    "lastLiquibaseTimestamp": 1629828508000
   }
 }

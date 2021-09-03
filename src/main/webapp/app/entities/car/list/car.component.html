@@ -15,7 +15,7 @@
         [routerLink]="['/car/new']"
       >
         <fa-icon icon="plus"></fa-icon>
-        <span> Create a new Car </span>
+        <span class="hidden-sm-down"> Create a new Car </span>
       </button>
     </div>
   </h2>
@@ -23,6 +23,24 @@
   <jhi-alert-error></jhi-alert-error>
 
   <jhi-alert></jhi-alert>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <form name="searchForm" class="form-inline">
+        <div class="input-group w-100 mt-3">
+          <input type="text" class="form-control" [(ngModel)]="currentSearch" id="currentSearch" name="currentSearch" placeholder="Query" />
+
+          <button class="input-group-append btn btn-info" (click)="search(currentSearch)">
+            <fa-icon icon="search"></fa-icon>
+          </button>
+
+          <button class="input-group-append btn btn-danger" (click)="search('')" *ngIf="currentSearch">
+            <fa-icon icon="trash-alt"></fa-icon>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <div class="alert alert-warning" id="no-result" *ngIf="cars?.length === 0">
     <span>No cars found</span>
@@ -35,7 +53,9 @@
           <th scope="col"><span>ID</span></th>
           <th scope="col"><span>Make</span></th>
           <th scope="col"><span>Model</span></th>
+          <th scope="col"><span>Year</span></th>
           <th scope="col"><span>Driver</span></th>
+          <th scope="col"><span>Passengers</span></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -46,10 +66,17 @@
           </td>
           <td>{{ car.make }}</td>
           <td>{{ car.model }}</td>
+          <td>{{ car.year | formatMediumDate }}</td>
           <td>
             <div *ngIf="car.driver">
               <a [routerLink]="['/driver', car.driver?.id, 'view']">{{ car.driver?.id }}</a>
             </div>
+          </td>
+          <td>
+            <span *ngFor="let passengers of car.passengers; let last = last">
+              <a class="form-control-static" [routerLink]="['/person', passengers.id, 'view']">{{ passengers.id }}</a
+              >{{ last ? '' : ', ' }}
+            </span>
           </td>
           <td class="text-right">
             <div class="btn-group">

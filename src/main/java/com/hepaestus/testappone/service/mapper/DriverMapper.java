@@ -9,7 +9,7 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring", uses = { PersonMapper.class })
 public interface DriverMapper extends EntityMapper<DriverDTO, Driver> {
-    @Mapping(target = "person", source = "person", qualifiedByName = "id")
+    @Mapping(target = "person", source = "person", qualifiedByName = "name")
     DriverDTO toDto(Driver s);
 
     @Named("id")

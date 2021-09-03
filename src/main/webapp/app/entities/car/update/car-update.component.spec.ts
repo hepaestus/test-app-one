@@ -11,6 +11,8 @@ import { CarService } from '../service/car.service';
 import { ICar, Car } from '../car.model';
 import { IDriver } from 'app/entities/driver/driver.model';
 import { DriverService } from 'app/entities/driver/service/driver.service';
+import { IPerson } from 'app/entities/person/person.model';
+import { PersonService } from 'app/entities/person/service/person.service';
 
 import { CarUpdateComponent } from './car-update.component';
 
@@ -21,6 +23,7 @@ describe('Component Tests', () => {
     let activatedRoute: ActivatedRoute;
     let carService: CarService;
     let driverService: DriverService;
+    let personService: PersonService;
 
     beforeEach(() => {
       TestBed.configureTestingModule({
@@ -35,39 +38,63 @@ describe('Component Tests', () => {
       activatedRoute = TestBed.inject(ActivatedRoute);
       carService = TestBed.inject(CarService);
       driverService = TestBed.inject(DriverService);
+      personService = TestBed.inject(PersonService);
 
       comp = fixture.componentInstance;
     });
 
     describe('ngOnInit', () => {
-      it('Should call driver query and add missing value', () => {
+      it('Should call Driver query and add missing value', () => {
         const car: ICar = { id: 456 };
         const driver: IDriver = { id: 17292 };
         car.driver = driver;
 
         const driverCollection: IDriver[] = [{ id: 62558 }];
         jest.spyOn(driverService, 'query').mockReturnValue(of(new HttpResponse({ body: driverCollection })));
-        const expectedCollection: IDriver[] = [driver, ...driverCollection];
+        const additionalDrivers = [driver];
+        const expectedCollection: IDriver[] = [...additionalDrivers, ...driverCollection];
         jest.spyOn(driverService, 'addDriverToCollectionIfMissing').mockReturnValue(expectedCollection);
 
         activatedRoute.data = of({ car });
         comp.ngOnInit();
 
         expect(driverService.query).toHaveBeenCalled();
-        expect(driverService.addDriverToCollectionIfMissing).toHaveBeenCalledWith(driverCollection, driver);
-        expect(comp.driversCollection).toEqual(expectedCollection);
+        expect(driverService.addDriverToCollectionIfMissing).toHaveBeenCalledWith(driverCollection, ...additionalDrivers);
+        expect(comp.driversSharedCollection).toEqual(expectedCollection);
+      });
+
+      it('Should call Person query and add missing value', () => {
+        const car: ICar = { id: 456 };
+        const passengers: IPerson[] = [{ id: 30996 }];
+        car.passengers = passengers;
+
+        const personCollection: IPerson[] = [{ id: 14898 }];
+        jest.spyOn(personService, 'query').mockReturnValue(of(new HttpResponse({ body: personCollection })));
+        const additionalPeople = [...passengers];
+        const expectedCollection: IPerson[] = [...additionalPeople, ...personCollection];
+        jest.spyOn(personService, 'addPersonToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+        activatedRoute.data = of({ car });
+        comp.ngOnInit();
+
+        expect(personService.query).toHaveBeenCalled();
+        expect(personService.addPersonToCollectionIfMissing).toHaveBeenCalledWith(personCollection, ...additionalPeople);
+        expect(comp.peopleSharedCollection).toEqual(expectedCollection);
       });
 
       it('Should update editForm', () => {
         const car: ICar = { id: 456 };
         const driver: IDriver = { id: 93544 };
         car.driver = driver;
+        const passengers: IPerson = { id: 30993 };
+        car.passengers = [passengers];
 
         activatedRoute.data = of({ car });
         comp.ngOnInit();
 
         expect(comp.editForm.value).toEqual(expect.objectContaining(car));
-        expect(comp.driversCollection).toContain(driver);
+        expect(comp.driversSharedCollection).toContain(driver);
+        expect(comp.peopleSharedCollection).toContain(passengers);
       });
     });
 
@@ -141,6 +168,42 @@ describe('Component Tests', () => {
           const entity = { id: 123 };
           const trackResult = comp.trackDriverById(0, entity);
           expect(trackResult).toEqual(entity.id);
+        });
+      });
+
+      describe('trackPersonById', () => {
+        it('Should return tracked Person primary key', () => {
+          const entity = { id: 123 };
+          const trackResult = comp.trackPersonById(0, entity);
+          expect(trackResult).toEqual(entity.id);
+        });
+      });
+    });
+
+    describe('Getting selected relationships', () => {
+      describe('getSelectedPerson', () => {
+        it('Should return option if no Person is selected', () => {
+          const option = { id: 123 };
+          const result = comp.getSelectedPerson(option);
+          expect(result === option).toEqual(true);
+        });
+
+        it('Should return selected Person for according option', () => {
+          const option = { id: 123 };
+          const selected = { id: 123 };
+          const selected2 = { id: 456 };
+          const result = comp.getSelectedPerson(option, [selected2, selected]);
+          expect(result === selected).toEqual(true);
+          expect(result === selected2).toEqual(false);
+          expect(result === option).toEqual(false);
+        });
+
+        it('Should return option if this Person is not selected', () => {
+          const option = { id: 123 };
+          const selected = { id: 456 };
+          const result = comp.getSelectedPerson(option, [selected]);
+          expect(result === option).toEqual(true);
+          expect(result === selected).toEqual(false);
         });
       });
     });

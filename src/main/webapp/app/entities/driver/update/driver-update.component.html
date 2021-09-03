@@ -21,19 +21,32 @@
             data-cy="licenseNumber"
             formControlName="licenseNumber"
           />
+          <div
+            *ngIf="
+              editForm.get('licenseNumber')!.invalid && (editForm.get('licenseNumber')!.dirty || editForm.get('licenseNumber')!.touched)
+            "
+          >
+            <small class="form-text text-danger" *ngIf="editForm.get('licenseNumber')?.errors?.required"> This field is required. </small>
+            <small class="form-text text-danger" *ngIf="editForm.get('licenseNumber')?.errors?.pattern">
+              This field should follow pattern for "License Number".
+            </small>
+          </div>
         </div>
 
         <div class="form-group">
           <label class="form-control-label" for="field_person">Person</label>
           <select class="form-control" id="field_person" data-cy="person" name="person" formControlName="person">
-            <option [ngValue]="null"></option>
+            <option *ngIf="editForm.get(['person'])!.value == null" [ngValue]="null" selected></option>
             <option
               [ngValue]="personOption.id === editForm.get('person')!.value?.id ? editForm.get('person')!.value : personOption"
               *ngFor="let personOption of peopleCollection; trackBy: trackPersonById"
             >
-              {{ personOption.id }}
+              {{ personOption.name }}
             </option>
           </select>
+        </div>
+        <div *ngIf="editForm.get(['person'])!.invalid && (editForm.get(['person'])!.dirty || editForm.get(['person'])!.touched)">
+          <small class="form-text text-danger" *ngIf="editForm.get(['person'])?.errors?.required"> This field is required. </small>
         </div>
       </div>
 

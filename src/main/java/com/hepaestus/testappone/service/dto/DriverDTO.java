@@ -2,6 +2,7 @@ package com.hepaestus.testappone.service.dto;
 
 import java.io.Serializable;
 import java.util.Objects;
+import javax.validation.constraints.*;
 
 /**
  * A DTO for the {@link com.hepaestus.testappone.domain.Driver} entity.
@@ -10,6 +11,8 @@ public class DriverDTO implements Serializable {
 
     private Long id;
 
+    @NotNull
+    @Pattern(regexp = "^[A-Z][a-z]{6}[0-9]{1}")
     private String licenseNumber;
 
     private PersonDTO person;

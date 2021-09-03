@@ -1,5 +1,7 @@
 package com.hepaestus.testappone.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import com.hepaestus.testappone.repository.DriverRepository;
 import com.hepaestus.testappone.service.DriverService;
 import com.hepaestus.testappone.service.dto.DriverDTO;
@@ -9,6 +11,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,7 +53,7 @@ public class DriverResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/drivers")
-    public ResponseEntity<DriverDTO> createDriver(@RequestBody DriverDTO driverDTO) throws URISyntaxException {
+    public ResponseEntity<DriverDTO> createDriver(@Valid @RequestBody DriverDTO driverDTO) throws URISyntaxException {
         log.debug("REST request to save Driver : {}", driverDTO);
         if (driverDTO.getId() != null) {
             throw new BadRequestAlertException("A new driver cannot already have an ID", ENTITY_NAME, "idexists");
@@ -73,7 +78,7 @@ public class DriverResource {
     @PutMapping("/drivers/{id}")
     public ResponseEntity<DriverDTO> updateDriver(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody DriverDTO driverDTO
+        @Valid @RequestBody DriverDTO driverDTO
     ) throws URISyntaxException {
         log.debug("REST request to update Driver : {}, {}", id, driverDTO);
         if (driverDTO.getId() == null) {
@@ -108,7 +113,7 @@ public class DriverResource {
     @PatchMapping(value = "/drivers/{id}", consumes = "application/merge-patch+json")
     public ResponseEntity<DriverDTO> partialUpdateDriver(
         @PathVariable(value = "id", required = false) final Long id,
-        @RequestBody DriverDTO driverDTO
+        @NotNull @RequestBody DriverDTO driverDTO
     ) throws URISyntaxException {
         log.debug("REST request to partial update Driver partially : {}, {}", id, driverDTO);
         if (driverDTO.getId() == null) {
@@ -168,5 +173,18 @@ public class DriverResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /_search/drivers?query=:query} : search for the driver corresponding
+     * to the query.
+     *
+     * @param query the query of the driver search.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/drivers")
+    public List<DriverDTO> searchDrivers(@RequestParam String query) {
+        log.debug("REST request to search Drivers for query {}", query);
+        return driverService.search(query);
     }
 }

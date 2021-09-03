@@ -1,7 +1,9 @@
 package com.hepaestus.testappone.service.dto;
 
 import java.io.Serializable;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * A DTO for the {@link com.hepaestus.testappone.domain.Person} entity.
@@ -12,7 +14,9 @@ public class PersonDTO implements Serializable {
 
     private String name;
 
-    private CarDTO car;
+    private UserDTO user;
+
+    private Set<ShoeDTO> shoes = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -30,12 +34,20 @@ public class PersonDTO implements Serializable {
         this.name = name;
     }
 
-    public CarDTO getCar() {
-        return car;
+    public UserDTO getUser() {
+        return user;
     }
 
-    public void setCar(CarDTO car) {
-        this.car = car;
+    public void setUser(UserDTO user) {
+        this.user = user;
+    }
+
+    public Set<ShoeDTO> getShoes() {
+        return shoes;
+    }
+
+    public void setShoes(Set<ShoeDTO> shoes) {
+        this.shoes = shoes;
     }
 
     @Override
@@ -65,7 +77,8 @@ public class PersonDTO implements Serializable {
         return "PersonDTO{" +
             "id=" + getId() +
             ", name='" + getName() + "'" +
-            ", car=" + getCar() +
+            ", user=" + getUser() +
+            ", shoes=" + getShoes() +
             "}";
     }
 }

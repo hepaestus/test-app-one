@@ -15,6 +15,11 @@ import { RouterModule } from '@angular/router';
         loadChildren: () => import('./person/person.module').then(m => m.PersonModule),
       },
       {
+        path: 'shoe',
+        data: { pageTitle: 'Shoes' },
+        loadChildren: () => import('./shoe/shoe.module').then(m => m.ShoeModule),
+      },
+      {
         path: 'driver',
         data: { pageTitle: 'Drivers' },
         loadChildren: () => import('./driver/driver.module').then(m => m.DriverModule),

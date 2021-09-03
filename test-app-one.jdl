@@ -26,7 +26,7 @@ application {
     packageName com.hepaestus.testappone
     prodDatabaseType mysql
     reactive false
-    searchEngine false
+    searchEngine elasticsearch
     serverPort 8080
     serviceDiscoveryType false
     skipClient false
@@ -38,29 +38,38 @@ application {
   }
   entities *
 }
+
 entity Car {
   make String
   model String
+  year LocalDate
 }
 
 entity Person {
   name String
 }
 
+entity Shoe {
+  shoeSize Integer min(4) max(18)
+}
+
 entity Driver {
-  licenseNumber String  
+  licenseNumber String required pattern(/^[A-Z][a-z]{6}[0-9]{1}/)
 }
 
-relationship OneToOne{
-  Driver{person} to Person  
+relationship OneToOne {
+  Person{user} to User
+  Driver{person(name) required} to Person{driver}
 }
 
-relationship OneToOne{
-  Car{driver} to Driver
+relationship ManyToOne {
+  Car{driver required} to Driver{car required}
 }
 
-relationship OneToMany{    
-  Car{passengers} to Person
+relationship ManyToMany {
+  Car{passengers} to Person{car}
+  Person{shoe} to Shoe{person}
 }
 
 dto * with mapstruct
+search * with elasticsearch

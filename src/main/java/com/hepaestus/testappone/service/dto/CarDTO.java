@@ -1,7 +1,11 @@
 package com.hepaestus.testappone.service.dto;
 
 import java.io.Serializable;
+import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
+import javax.validation.constraints.*;
 
 /**
  * A DTO for the {@link com.hepaestus.testappone.domain.Car} entity.
@@ -14,7 +18,11 @@ public class CarDTO implements Serializable {
 
     private String model;
 
+    private LocalDate year;
+
     private DriverDTO driver;
+
+    private Set<PersonDTO> passengers = new HashSet<>();
 
     public Long getId() {
         return id;
@@ -40,12 +48,28 @@ public class CarDTO implements Serializable {
         this.model = model;
     }
 
+    public LocalDate getYear() {
+        return year;
+    }
+
+    public void setYear(LocalDate year) {
+        this.year = year;
+    }
+
     public DriverDTO getDriver() {
         return driver;
     }
 
     public void setDriver(DriverDTO driver) {
         this.driver = driver;
+    }
+
+    public Set<PersonDTO> getPassengers() {
+        return passengers;
+    }
+
+    public void setPassengers(Set<PersonDTO> passengers) {
+        this.passengers = passengers;
     }
 
     @Override
@@ -76,7 +100,9 @@ public class CarDTO implements Serializable {
             "id=" + getId() +
             ", make='" + getMake() + "'" +
             ", model='" + getModel() + "'" +
+            ", year='" + getYear() + "'" +
             ", driver=" + getDriver() +
+            ", passengers=" + getPassengers() +
             "}";
     }
 }

@@ -2,11 +2,15 @@ package com.hepaestus.testappone.domain;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
+import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 import javax.persistence.*;
+import javax.validation.constraints.*;
 import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.data.elasticsearch.annotations.Field;
+import org.springframework.data.elasticsearch.annotations.FieldType;
 
 /**
  * A Car.
@@ -14,6 +18,7 @@ import org.hibernate.annotations.CacheConcurrencyStrategy;
 @Entity
 @Table(name = "car")
 @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
+@org.springframework.data.elasticsearch.annotations.Document(indexName = "car")
 public class Car implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -28,14 +33,23 @@ public class Car implements Serializable {
     @Column(name = "model")
     private String model;
 
-    @JsonIgnoreProperties(value = { "person" }, allowSetters = true)
-    @OneToOne
-    @JoinColumn(unique = true)
+    @Column(name = "year")
+    private LocalDate year;
+
+    @ManyToOne(optional = false)
+    @NotNull
+    @JsonIgnoreProperties(value = { "person", "cars" }, allowSetters = true)
     private Driver driver;
 
-    @OneToMany(mappedBy = "car")
+    @ManyToMany
     @Cache(usage = CacheConcurrencyStrategy.READ_WRITE)
-    @JsonIgnoreProperties(value = { "car" }, allowSetters = true)
+    @JoinTable(
+        name = "rel_car__passengers",
+        joinColumns = @JoinColumn(name = "car_id"),
+        inverseJoinColumns = @JoinColumn(name = "passengers_id")
+    )
+    @JsonIgnoreProperties(value = { "user", "shoes", "driver", "cars" }, allowSetters = true)
+    @Field(type = FieldType.Nested, ignoreFields = { "user", "shoes", "driver", "cars" })
     private Set<Person> passengers = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
@@ -78,6 +92,19 @@ public class Car implements Serializable {
         this.model = model;
     }
 
+    public LocalDate getYear() {
+        return this.year;
+    }
+
+    public Car year(LocalDate year) {
+        this.year = year;
+        return this;
+    }
+
+    public void setYear(LocalDate year) {
+        this.year = year;
+    }
+
     public Driver getDriver() {
         return this.driver;
     }
@@ -102,23 +129,17 @@ public class Car implements Serializable {
 
     public Car addPassengers(Person person) {
         this.passengers.add(person);
-        person.setCar(this);
+        person.getCars().add(this);
         return this;
     }
 
     public Car removePassengers(Person person) {
         this.passengers.remove(person);
-        person.setCar(null);
+        person.getCars().remove(this);
         return this;
     }
 
     public void setPassengers(Set<Person> people) {
-        if (this.passengers != null) {
-            this.passengers.forEach(i -> i.setCar(null));
-        }
-        if (people != null) {
-            people.forEach(i -> i.setCar(this));
-        }
         this.passengers = people;
     }
 
@@ -148,6 +169,7 @@ public class Car implements Serializable {
             "id=" + getId() +
             ", make='" + getMake() + "'" +
             ", model='" + getModel() + "'" +
+            ", year='" + getYear() + "'" +
             "}";
     }
 }

@@ -9,8 +9,11 @@ import { of, Subject } from 'rxjs';
 
 import { PersonService } from '../service/person.service';
 import { IPerson, Person } from '../person.model';
-import { ICar } from 'app/entities/car/car.model';
-import { CarService } from 'app/entities/car/service/car.service';
+
+import { IUser } from 'app/entities/user/user.model';
+import { UserService } from 'app/entities/user/user.service';
+import { IShoe } from 'app/entities/shoe/shoe.model';
+import { ShoeService } from 'app/entities/shoe/service/shoe.service';
 
 import { PersonUpdateComponent } from './person-update.component';
 
@@ -20,7 +23,8 @@ describe('Component Tests', () => {
     let fixture: ComponentFixture<PersonUpdateComponent>;
     let activatedRoute: ActivatedRoute;
     let personService: PersonService;
-    let carService: CarService;
+    let userService: UserService;
+    let shoeService: ShoeService;
 
     beforeEach(() => {
       TestBed.configureTestingModule({
@@ -34,41 +38,64 @@ describe('Component Tests', () => {
       fixture = TestBed.createComponent(PersonUpdateComponent);
       activatedRoute = TestBed.inject(ActivatedRoute);
       personService = TestBed.inject(PersonService);
-      carService = TestBed.inject(CarService);
+      userService = TestBed.inject(UserService);
+      shoeService = TestBed.inject(ShoeService);
 
       comp = fixture.componentInstance;
     });
 
     describe('ngOnInit', () => {
-      it('Should call Car query and add missing value', () => {
+      it('Should call User query and add missing value', () => {
         const person: IPerson = { id: 456 };
-        const car: ICar = { id: 73021 };
-        person.car = car;
+        const user: IUser = { id: 57046 };
+        person.user = user;
 
-        const carCollection: ICar[] = [{ id: 44861 }];
-        jest.spyOn(carService, 'query').mockReturnValue(of(new HttpResponse({ body: carCollection })));
-        const additionalCars = [car];
-        const expectedCollection: ICar[] = [...additionalCars, ...carCollection];
-        jest.spyOn(carService, 'addCarToCollectionIfMissing').mockReturnValue(expectedCollection);
+        const userCollection: IUser[] = [{ id: 27076 }];
+        jest.spyOn(userService, 'query').mockReturnValue(of(new HttpResponse({ body: userCollection })));
+        const additionalUsers = [user];
+        const expectedCollection: IUser[] = [...additionalUsers, ...userCollection];
+        jest.spyOn(userService, 'addUserToCollectionIfMissing').mockReturnValue(expectedCollection);
 
         activatedRoute.data = of({ person });
         comp.ngOnInit();
 
-        expect(carService.query).toHaveBeenCalled();
-        expect(carService.addCarToCollectionIfMissing).toHaveBeenCalledWith(carCollection, ...additionalCars);
-        expect(comp.carsSharedCollection).toEqual(expectedCollection);
+        expect(userService.query).toHaveBeenCalled();
+        expect(userService.addUserToCollectionIfMissing).toHaveBeenCalledWith(userCollection, ...additionalUsers);
+        expect(comp.usersSharedCollection).toEqual(expectedCollection);
+      });
+
+      it('Should call Shoe query and add missing value', () => {
+        const person: IPerson = { id: 456 };
+        const shoes: IShoe[] = [{ id: 7990 }];
+        person.shoes = shoes;
+
+        const shoeCollection: IShoe[] = [{ id: 11729 }];
+        jest.spyOn(shoeService, 'query').mockReturnValue(of(new HttpResponse({ body: shoeCollection })));
+        const additionalShoes = [...shoes];
+        const expectedCollection: IShoe[] = [...additionalShoes, ...shoeCollection];
+        jest.spyOn(shoeService, 'addShoeToCollectionIfMissing').mockReturnValue(expectedCollection);
+
+        activatedRoute.data = of({ person });
+        comp.ngOnInit();
+
+        expect(shoeService.query).toHaveBeenCalled();
+        expect(shoeService.addShoeToCollectionIfMissing).toHaveBeenCalledWith(shoeCollection, ...additionalShoes);
+        expect(comp.shoesSharedCollection).toEqual(expectedCollection);
       });
 
       it('Should update editForm', () => {
         const person: IPerson = { id: 456 };
-        const car: ICar = { id: 70634 };
-        person.car = car;
+        const user: IUser = { id: 40784 };
+        person.user = user;
+        const shoes: IShoe = { id: 7593 };
+        person.shoes = [shoes];
 
         activatedRoute.data = of({ person });
         comp.ngOnInit();
 
         expect(comp.editForm.value).toEqual(expect.objectContaining(person));
-        expect(comp.carsSharedCollection).toContain(car);
+        expect(comp.usersSharedCollection).toContain(user);
+        expect(comp.shoesSharedCollection).toContain(shoes);
       });
     });
 
@@ -137,11 +164,47 @@ describe('Component Tests', () => {
     });
 
     describe('Tracking relationships identifiers', () => {
-      describe('trackCarById', () => {
-        it('Should return tracked Car primary key', () => {
+      describe('trackUserById', () => {
+        it('Should return tracked User primary key', () => {
           const entity = { id: 123 };
-          const trackResult = comp.trackCarById(0, entity);
+          const trackResult = comp.trackUserById(0, entity);
           expect(trackResult).toEqual(entity.id);
+        });
+      });
+
+      describe('trackShoeById', () => {
+        it('Should return tracked Shoe primary key', () => {
+          const entity = { id: 123 };
+          const trackResult = comp.trackShoeById(0, entity);
+          expect(trackResult).toEqual(entity.id);
+        });
+      });
+    });
+
+    describe('Getting selected relationships', () => {
+      describe('getSelectedShoe', () => {
+        it('Should return option if no Shoe is selected', () => {
+          const option = { id: 123 };
+          const result = comp.getSelectedShoe(option);
+          expect(result === option).toEqual(true);
+        });
+
+        it('Should return selected Shoe for according option', () => {
+          const option = { id: 123 };
+          const selected = { id: 123 };
+          const selected2 = { id: 456 };
+          const result = comp.getSelectedShoe(option, [selected2, selected]);
+          expect(result === selected).toEqual(true);
+          expect(result === selected2).toEqual(false);
+          expect(result === option).toEqual(false);
+        });
+
+        it('Should return option if this Shoe is not selected', () => {
+          const option = { id: 123 };
+          const selected = { id: 456 };
+          const result = comp.getSelectedShoe(option, [selected]);
+          expect(result === option).toEqual(true);
+          expect(result === selected).toEqual(false);
         });
       });
     });

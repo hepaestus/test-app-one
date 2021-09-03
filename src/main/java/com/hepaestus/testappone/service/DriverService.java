@@ -1,13 +1,17 @@
 package com.hepaestus.testappone.service;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import com.hepaestus.testappone.domain.Driver;
 import com.hepaestus.testappone.repository.DriverRepository;
+import com.hepaestus.testappone.repository.search.DriverSearchRepository;
 import com.hepaestus.testappone.service.dto.DriverDTO;
 import com.hepaestus.testappone.service.mapper.DriverMapper;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -26,9 +30,12 @@ public class DriverService {
 
     private final DriverMapper driverMapper;
 
-    public DriverService(DriverRepository driverRepository, DriverMapper driverMapper) {
+    private final DriverSearchRepository driverSearchRepository;
+
+    public DriverService(DriverRepository driverRepository, DriverMapper driverMapper, DriverSearchRepository driverSearchRepository) {
         this.driverRepository = driverRepository;
         this.driverMapper = driverMapper;
+        this.driverSearchRepository = driverSearchRepository;
     }
 
     /**
@@ -41,7 +48,9 @@ public class DriverService {
         log.debug("Request to save Driver : {}", driverDTO);
         Driver driver = driverMapper.toEntity(driverDTO);
         driver = driverRepository.save(driver);
-        return driverMapper.toDto(driver);
+        DriverDTO result = driverMapper.toDto(driver);
+        driverSearchRepository.save(driver);
+        return result;
     }
 
     /**
@@ -63,6 +72,13 @@ public class DriverService {
                 }
             )
             .map(driverRepository::save)
+            .map(
+                savedDriver -> {
+                    driverSearchRepository.save(savedDriver);
+
+                    return savedDriver;
+                }
+            )
             .map(driverMapper::toDto);
     }
 
@@ -97,5 +113,21 @@ public class DriverService {
     public void delete(Long id) {
         log.debug("Request to delete Driver : {}", id);
         driverRepository.deleteById(id);
+        driverSearchRepository.deleteById(id);
+    }
+
+    /**
+     * Search for the driver corresponding to the query.
+     *
+     * @param query the query of the search.
+     * @return the list of entities.
+     */
+    @Transactional(readOnly = true)
+    public List<DriverDTO> search(String query) {
+        log.debug("Request to search Drivers for query {}", query);
+        return StreamSupport
+            .stream(driverSearchRepository.search(queryStringQuery(query)).spliterator(), false)
+            .map(driverMapper::toDto)
+            .collect(Collectors.toList());
     }
 }

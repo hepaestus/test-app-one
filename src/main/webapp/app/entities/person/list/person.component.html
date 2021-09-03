@@ -15,7 +15,7 @@
         [routerLink]="['/person/new']"
       >
         <fa-icon icon="plus"></fa-icon>
-        <span> Create a new Person </span>
+        <span class="hidden-sm-down"> Create a new Person </span>
       </button>
     </div>
   </h2>
@@ -23,6 +23,24 @@
   <jhi-alert-error></jhi-alert-error>
 
   <jhi-alert></jhi-alert>
+
+  <div class="row">
+    <div class="col-sm-12">
+      <form name="searchForm" class="form-inline">
+        <div class="input-group w-100 mt-3">
+          <input type="text" class="form-control" [(ngModel)]="currentSearch" id="currentSearch" name="currentSearch" placeholder="Query" />
+
+          <button class="input-group-append btn btn-info" (click)="search(currentSearch)">
+            <fa-icon icon="search"></fa-icon>
+          </button>
+
+          <button class="input-group-append btn btn-danger" (click)="search('')" *ngIf="currentSearch">
+            <fa-icon icon="trash-alt"></fa-icon>
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 
   <div class="alert alert-warning" id="no-result" *ngIf="people?.length === 0">
     <span>No people found</span>
@@ -34,7 +52,8 @@
         <tr>
           <th scope="col"><span>ID</span></th>
           <th scope="col"><span>Name</span></th>
-          <th scope="col"><span>Car</span></th>
+          <th scope="col"><span>User</span></th>
+          <th scope="col"><span>Shoe</span></th>
           <th scope="col"></th>
         </tr>
       </thead>
@@ -45,9 +64,13 @@
           </td>
           <td>{{ person.name }}</td>
           <td>
-            <div *ngIf="person.car">
-              <a [routerLink]="['/car', person.car?.id, 'view']">{{ person.car?.id }}</a>
-            </div>
+            {{ person.user?.id }}
+          </td>
+          <td>
+            <span *ngFor="let shoe of person.shoes; let last = last">
+              <a class="form-control-static" [routerLink]="['/shoe', shoe.id, 'view']">{{ shoe.id }}</a
+              >{{ last ? '' : ', ' }}
+            </span>
           </td>
           <td class="text-right">
             <div class="btn-group">

@@ -13,5 +13,17 @@
                                  constraintName="fk_car__driver_id"
                                  referencedColumnNames="id"
                                  referencedTableName="driver"/>
+
+        <addForeignKeyConstraint baseColumnNames="car_id"
+                                 baseTableName="rel_car__passengers"
+                                 constraintName="fk_rel_car__passengers__car_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="car"/>
+
+        <addForeignKeyConstraint baseColumnNames="passengers_id"
+                                 baseTableName="rel_car__passengers"
+                                 constraintName="fk_rel_car__passengers__passengers_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="person"/>
     </changeSet>
 </databaseChangeLog>

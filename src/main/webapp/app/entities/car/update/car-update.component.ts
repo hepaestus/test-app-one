@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
-import { FormBuilder } from '@angular/forms';
+import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize, map } from 'rxjs/operators';
@@ -9,6 +9,8 @@ import { ICar, Car } from '../car.model';
 import { CarService } from '../service/car.service';
 import { IDriver } from 'app/entities/driver/driver.model';
 import { DriverService } from 'app/entities/driver/service/driver.service';
+import { IPerson } from 'app/entities/person/person.model';
+import { PersonService } from 'app/entities/person/service/person.service';
 
 @Component({
   selector: 'jhi-car-update',
@@ -17,18 +19,22 @@ import { DriverService } from 'app/entities/driver/service/driver.service';
 export class CarUpdateComponent implements OnInit {
   isSaving = false;
 
-  driversCollection: IDriver[] = [];
+  driversSharedCollection: IDriver[] = [];
+  peopleSharedCollection: IPerson[] = [];
 
   editForm = this.fb.group({
     id: [],
     make: [],
     model: [],
-    driver: [],
+    year: [],
+    driver: [null, Validators.required],
+    passengers: [],
   });
 
   constructor(
     protected carService: CarService,
     protected driverService: DriverService,
+    protected personService: PersonService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
   ) {}
@@ -59,6 +65,21 @@ export class CarUpdateComponent implements OnInit {
     return item.id!;
   }
 
+  trackPersonById(index: number, item: IPerson): number {
+    return item.id!;
+  }
+
+  getSelectedPerson(option: IPerson, selectedVals?: IPerson[]): IPerson {
+    if (selectedVals) {
+      for (const selectedVal of selectedVals) {
+        if (option.id === selectedVal.id) {
+          return selectedVal;
+        }
+      }
+    }
+    return option;
+  }
+
   protected subscribeToSaveResponse(result: Observable<HttpResponse<ICar>>): void {
     result.pipe(finalize(() => this.onSaveFinalize())).subscribe(
       () => this.onSaveSuccess(),
@@ -83,18 +104,31 @@ export class CarUpdateComponent implements OnInit {
       id: car.id,
       make: car.make,
       model: car.model,
+      year: car.year,
       driver: car.driver,
+      passengers: car.passengers,
     });
 
-    this.driversCollection = this.driverService.addDriverToCollectionIfMissing(this.driversCollection, car.driver);
+    this.driversSharedCollection = this.driverService.addDriverToCollectionIfMissing(this.driversSharedCollection, car.driver);
+    this.peopleSharedCollection = this.personService.addPersonToCollectionIfMissing(this.peopleSharedCollection, ...(car.passengers ?? []));
   }
 
   protected loadRelationshipsOptions(): void {
     this.driverService
-      .query({ filter: 'car-is-null' })
+      .query()
       .pipe(map((res: HttpResponse<IDriver[]>) => res.body ?? []))
       .pipe(map((drivers: IDriver[]) => this.driverService.addDriverToCollectionIfMissing(drivers, this.editForm.get('driver')!.value)))
-      .subscribe((drivers: IDriver[]) => (this.driversCollection = drivers));
+      .subscribe((drivers: IDriver[]) => (this.driversSharedCollection = drivers));
+
+    this.personService
+      .query()
+      .pipe(map((res: HttpResponse<IPerson[]>) => res.body ?? []))
+      .pipe(
+        map((people: IPerson[]) =>
+          this.personService.addPersonToCollectionIfMissing(people, ...(this.editForm.get('passengers')!.value ?? []))
+        )
+      )
+      .subscribe((people: IPerson[]) => (this.peopleSharedCollection = people));
   }
 
   protected createFromForm(): ICar {
@@ -103,7 +137,9 @@ export class CarUpdateComponent implements OnInit {
       id: this.editForm.get(['id'])!.value,
       make: this.editForm.get(['make'])!.value,
       model: this.editForm.get(['model'])!.value,
+      year: this.editForm.get(['year'])!.value,
       driver: this.editForm.get(['driver'])!.value,
+      passengers: this.editForm.get(['passengers'])!.value,
     };
   }
 }

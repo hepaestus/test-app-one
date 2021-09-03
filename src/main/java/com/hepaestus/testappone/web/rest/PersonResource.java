@@ -1,5 +1,7 @@
 package com.hepaestus.testappone.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import com.hepaestus.testappone.repository.PersonRepository;
 import com.hepaestus.testappone.service.PersonService;
 import com.hepaestus.testappone.service.dto.PersonDTO;
@@ -9,6 +11,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -133,10 +136,19 @@ public class PersonResource {
     /**
      * {@code GET  /people} : get all the people.
      *
+     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
+     * @param filter the filter of the request.
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of people in body.
      */
     @GetMapping("/people")
-    public List<PersonDTO> getAllPeople() {
+    public List<PersonDTO> getAllPeople(
+        @RequestParam(required = false) String filter,
+        @RequestParam(required = false, defaultValue = "false") boolean eagerload
+    ) {
+        if ("driver-is-null".equals(filter)) {
+            log.debug("REST request to get all Persons where driver is null");
+            return personService.findAllWhereDriverIsNull();
+        }
         log.debug("REST request to get all People");
         return personService.findAll();
     }
@@ -168,5 +180,18 @@ public class PersonResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /_search/people?query=:query} : search for the person corresponding
+     * to the query.
+     *
+     * @param query the query of the person search.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/people")
+    public List<PersonDTO> searchPeople(@RequestParam String query) {
+        log.debug("REST request to search People for query {}", query);
+        return personService.search(query);
     }
 }

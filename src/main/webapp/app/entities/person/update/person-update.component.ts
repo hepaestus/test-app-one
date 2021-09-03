@@ -7,8 +7,10 @@ import { finalize, map } from 'rxjs/operators';
 
 import { IPerson, Person } from '../person.model';
 import { PersonService } from '../service/person.service';
-import { ICar } from 'app/entities/car/car.model';
-import { CarService } from 'app/entities/car/service/car.service';
+import { IUser } from 'app/entities/user/user.model';
+import { UserService } from 'app/entities/user/user.service';
+import { IShoe } from 'app/entities/shoe/shoe.model';
+import { ShoeService } from 'app/entities/shoe/service/shoe.service';
 
 @Component({
   selector: 'jhi-person-update',
@@ -17,17 +19,20 @@ import { CarService } from 'app/entities/car/service/car.service';
 export class PersonUpdateComponent implements OnInit {
   isSaving = false;
 
-  carsSharedCollection: ICar[] = [];
+  usersSharedCollection: IUser[] = [];
+  shoesSharedCollection: IShoe[] = [];
 
   editForm = this.fb.group({
     id: [],
     name: [],
-    car: [],
+    user: [],
+    shoes: [],
   });
 
   constructor(
     protected personService: PersonService,
-    protected carService: CarService,
+    protected userService: UserService,
+    protected shoeService: ShoeService,
     protected activatedRoute: ActivatedRoute,
     protected fb: FormBuilder
   ) {}
@@ -54,8 +59,23 @@ export class PersonUpdateComponent implements OnInit {
     }
   }
 
-  trackCarById(index: number, item: ICar): number {
+  trackUserById(index: number, item: IUser): number {
     return item.id!;
+  }
+
+  trackShoeById(index: number, item: IShoe): number {
+    return item.id!;
+  }
+
+  getSelectedShoe(option: IShoe, selectedVals?: IShoe[]): IShoe {
+    if (selectedVals) {
+      for (const selectedVal of selectedVals) {
+        if (option.id === selectedVal.id) {
+          return selectedVal;
+        }
+      }
+    }
+    return option;
   }
 
   protected subscribeToSaveResponse(result: Observable<HttpResponse<IPerson>>): void {
@@ -81,18 +101,26 @@ export class PersonUpdateComponent implements OnInit {
     this.editForm.patchValue({
       id: person.id,
       name: person.name,
-      car: person.car,
+      user: person.user,
+      shoes: person.shoes,
     });
 
-    this.carsSharedCollection = this.carService.addCarToCollectionIfMissing(this.carsSharedCollection, person.car);
+    this.usersSharedCollection = this.userService.addUserToCollectionIfMissing(this.usersSharedCollection, person.user);
+    this.shoesSharedCollection = this.shoeService.addShoeToCollectionIfMissing(this.shoesSharedCollection, ...(person.shoes ?? []));
   }
 
   protected loadRelationshipsOptions(): void {
-    this.carService
+    this.userService
       .query()
-      .pipe(map((res: HttpResponse<ICar[]>) => res.body ?? []))
-      .pipe(map((cars: ICar[]) => this.carService.addCarToCollectionIfMissing(cars, this.editForm.get('car')!.value)))
-      .subscribe((cars: ICar[]) => (this.carsSharedCollection = cars));
+      .pipe(map((res: HttpResponse<IUser[]>) => res.body ?? []))
+      .pipe(map((users: IUser[]) => this.userService.addUserToCollectionIfMissing(users, this.editForm.get('user')!.value)))
+      .subscribe((users: IUser[]) => (this.usersSharedCollection = users));
+
+    this.shoeService
+      .query()
+      .pipe(map((res: HttpResponse<IShoe[]>) => res.body ?? []))
+      .pipe(map((shoes: IShoe[]) => this.shoeService.addShoeToCollectionIfMissing(shoes, ...(this.editForm.get('shoes')!.value ?? []))))
+      .subscribe((shoes: IShoe[]) => (this.shoesSharedCollection = shoes));
   }
 
   protected createFromForm(): IPerson {
@@ -100,7 +128,8 @@ export class PersonUpdateComponent implements OnInit {
       ...new Person(),
       id: this.editForm.get(['id'])!.value,
       name: this.editForm.get(['name'])!.value,
-      car: this.editForm.get(['car'])!.value,
+      user: this.editForm.get(['user'])!.value,
+      shoes: this.editForm.get(['shoes'])!.value,
     };
   }
 }
