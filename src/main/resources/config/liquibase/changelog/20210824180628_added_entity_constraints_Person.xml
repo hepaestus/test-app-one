@@ -8,10 +8,22 @@
     -->
     <changeSet id="20210824180628-2" author="jhipster">
 
-        <addForeignKeyConstraint baseColumnNames="car_id"
+        <addForeignKeyConstraint baseColumnNames="user_id"
                                  baseTableName="person"
-                                 constraintName="fk_person__car_id"
+                                 constraintName="fk_person__user_id"
                                  referencedColumnNames="id"
-                                 referencedTableName="car"/>
+                                 referencedTableName="jhi_user"/>
+
+        <addForeignKeyConstraint baseColumnNames="person_id"
+                                 baseTableName="rel_person__shoe"
+                                 constraintName="fk_rel_person__shoe__person_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="person"/>
+
+        <addForeignKeyConstraint baseColumnNames="shoe_id"
+                                 baseTableName="rel_person__shoe"
+                                 constraintName="fk_rel_person__shoe__shoe_id"
+                                 referencedColumnNames="id"
+                                 referencedTableName="shoe"/>
     </changeSet>
 </databaseChangeLog>

@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { IPerson } from '../person.model';
@@ -13,11 +14,30 @@ import { PersonDeleteDialogComponent } from '../delete/person-delete-dialog.comp
 export class PersonComponent implements OnInit {
   people?: IPerson[];
   isLoading = false;
+  currentSearch: string;
 
-  constructor(protected personService: PersonService, protected modalService: NgbModal) {}
+  constructor(protected personService: PersonService, protected modalService: NgbModal, protected activatedRoute: ActivatedRoute) {
+    this.currentSearch = this.activatedRoute.snapshot.queryParams['search'] ?? '';
+  }
 
   loadAll(): void {
     this.isLoading = true;
+    if (this.currentSearch) {
+      this.personService
+        .search({
+          query: this.currentSearch,
+        })
+        .subscribe(
+          (res: HttpResponse<IPerson[]>) => {
+            this.isLoading = false;
+            this.people = res.body ?? [];
+          },
+          () => {
+            this.isLoading = false;
+          }
+        );
+      return;
+    }
 
     this.personService.query().subscribe(
       (res: HttpResponse<IPerson[]>) => {
@@ -28,6 +48,11 @@ export class PersonComponent implements OnInit {
         this.isLoading = false;
       }
     );
+  }
+
+  search(query: string): void {
+    this.currentSearch = query;
+    this.loadAll();
   }
 
   ngOnInit(): void {

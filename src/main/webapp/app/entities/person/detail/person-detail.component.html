@@ -18,11 +18,16 @@
         <dd>
           <span>{{ person.name }}</span>
         </dd>
-        <dt><span>Car</span></dt>
+        <dt><span>User</span></dt>
         <dd>
-          <div *ngIf="person.car">
-            <a [routerLink]="['/car', person.car?.id, 'view']">{{ person.car?.id }}</a>
-          </div>
+          <span>{{ person.user?.id }}</span>
+        </dd>
+        <dt><span>Shoe</span></dt>
+        <dd>
+          <span *ngFor="let shoe of person.shoes; let last = last">
+            <a [routerLink]="['/shoe', shoe?.id, 'view']">{{ shoe.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
         </dd>
       </dl>
 

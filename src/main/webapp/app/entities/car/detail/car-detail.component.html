@@ -22,18 +22,22 @@
         <dd>
           <span>{{ car.model }}</span>
         </dd>
+        <dt><span>Year</span></dt>
+        <dd>
+          <span>{{ car.year | formatMediumDate }}</span>
+        </dd>
         <dt><span>Driver</span></dt>
         <dd>
           <div *ngIf="car.driver">
             <a [routerLink]="['/driver', car.driver?.id, 'view']">{{ car.driver?.id }}</a>
           </div>
         </dd>
-
         <dt><span>Passengers</span></dt>
         <dd>
-          <div *ngIf="car.passengers">
-            <a *ngFor="let each of car.passengers" [routerLink]="['/person', each.id, 'view']">{{ each.name }}</a>
-          </div>
+          <span *ngFor="let passengers of car.passengers; let last = last">
+            <a [routerLink]="['/person', passengers?.id, 'view']">{{ passengers.id }}</a
+            >{{ last ? '' : ', ' }}
+          </span>
         </dd>
       </dl>
 

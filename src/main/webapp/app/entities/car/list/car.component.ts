@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpResponse } from '@angular/common/http';
+import { ActivatedRoute } from '@angular/router';
 import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 
 import { ICar } from '../car.model';
@@ -13,11 +14,30 @@ import { CarDeleteDialogComponent } from '../delete/car-delete-dialog.component'
 export class CarComponent implements OnInit {
   cars?: ICar[];
   isLoading = false;
+  currentSearch: string;
 
-  constructor(protected carService: CarService, protected modalService: NgbModal) {}
+  constructor(protected carService: CarService, protected modalService: NgbModal, protected activatedRoute: ActivatedRoute) {
+    this.currentSearch = this.activatedRoute.snapshot.queryParams['search'] ?? '';
+  }
 
   loadAll(): void {
     this.isLoading = true;
+    if (this.currentSearch) {
+      this.carService
+        .search({
+          query: this.currentSearch,
+        })
+        .subscribe(
+          (res: HttpResponse<ICar[]>) => {
+            this.isLoading = false;
+            this.cars = res.body ?? [];
+          },
+          () => {
+            this.isLoading = false;
+          }
+        );
+      return;
+    }
 
     this.carService.query().subscribe(
       (res: HttpResponse<ICar[]>) => {
@@ -28,6 +48,11 @@ export class CarComponent implements OnInit {
         this.isLoading = false;
       }
     );
+  }
+
+  search(query: string): void {
+    this.currentSearch = query;
+    this.loadAll();
   }
 
   ngOnInit(): void {

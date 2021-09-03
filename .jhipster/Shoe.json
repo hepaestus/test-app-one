@@ -1,0 +1,32 @@
+{
+  "name": "Shoe",
+  "fields": [
+    {
+      "fieldName": "shoeSize",
+      "fieldType": "Integer",
+      "fieldValidateRules": ["min", "max"],
+      "fieldValidateRulesMin": "4",
+      "fieldValidateRulesMax": "18"
+    }
+  ],
+  "relationships": [
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "person",
+      "otherEntityRelationshipName": "shoe",
+      "relationshipName": "person",
+      "ownerSide": false
+    }
+  ],
+  "entityTableName": "shoe",
+  "dto": "mapstruct",
+  "pagination": "no",
+  "service": "serviceClass",
+  "jpaMetamodelFiltering": false,
+  "fluentMethods": true,
+  "readOnly": false,
+  "embedded": false,
+  "applications": ["testAppOne"],
+  "searchEngine": "elasticsearch",
+  "changelogDate": "20210824180728"
+}

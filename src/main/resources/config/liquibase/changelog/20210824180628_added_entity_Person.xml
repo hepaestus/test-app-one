@@ -17,11 +17,25 @@
             <column name="name" type="varchar(255)">
                 <constraints nullable="true" />
             </column>
-            <column name="car_id" type="bigint">
-                <constraints nullable="true" />
+            <column name="user_id" type="bigint">
+                <constraints nullable="true" unique="true" uniqueConstraintName="ux_person__user_id" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
+    </changeSet>
+
+    <changeSet id="20210824180628-1-relations" author="jhipster">
+
+        <createTable tableName="rel_person__shoe">
+            <column name="shoe_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+            <column name="person_id" type="bigint">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="person_id, shoe_id" tableName="rel_person__shoe"/>
     </changeSet>
 
     <!-- jhipster-needle-liquibase-add-changeset - JHipster will add changesets here -->

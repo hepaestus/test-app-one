@@ -1,23 +1,34 @@
 package com.hepaestus.testappone.web.rest;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 import static org.hamcrest.Matchers.hasItem;
+import static org.mockito.Mockito.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 import com.hepaestus.testappone.IntegrationTest;
 import com.hepaestus.testappone.domain.Person;
 import com.hepaestus.testappone.repository.PersonRepository;
+import com.hepaestus.testappone.repository.search.PersonSearchRepository;
+import com.hepaestus.testappone.service.PersonService;
 import com.hepaestus.testappone.service.dto.PersonDTO;
 import com.hepaestus.testappone.service.mapper.PersonMapper;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Random;
 import java.util.concurrent.atomic.AtomicLong;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.web.servlet.MockMvc;
@@ -27,6 +38,7 @@ import org.springframework.transaction.annotation.Transactional;
  * Integration tests for the {@link PersonResource} REST controller.
  */
 @IntegrationTest
+@ExtendWith(MockitoExtension.class)
 @AutoConfigureMockMvc
 @WithMockUser
 class PersonResourceIT {
@@ -36,6 +48,7 @@ class PersonResourceIT {
 
     private static final String ENTITY_API_URL = "/api/people";
     private static final String ENTITY_API_URL_ID = ENTITY_API_URL + "/{id}";
+    private static final String ENTITY_SEARCH_API_URL = "/api/_search/people";
 
     private static Random random = new Random();
     private static AtomicLong count = new AtomicLong(random.nextInt() + (2 * Integer.MAX_VALUE));
@@ -43,8 +56,22 @@ class PersonResourceIT {
     @Autowired
     private PersonRepository personRepository;
 
+    @Mock
+    private PersonRepository personRepositoryMock;
+
     @Autowired
     private PersonMapper personMapper;
+
+    @Mock
+    private PersonService personServiceMock;
+
+    /**
+     * This repository is mocked in the com.hepaestus.testappone.repository.search test package.
+     *
+     * @see com.hepaestus.testappone.repository.search.PersonSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private PersonSearchRepository mockPersonSearchRepository;
 
     @Autowired
     private EntityManager em;
@@ -96,6 +123,9 @@ class PersonResourceIT {
         assertThat(personList).hasSize(databaseSizeBeforeCreate + 1);
         Person testPerson = personList.get(personList.size() - 1);
         assertThat(testPerson.getName()).isEqualTo(DEFAULT_NAME);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository, times(1)).save(testPerson);
     }
 
     @Test
@@ -115,6 +145,9 @@ class PersonResourceIT {
         // Validate the Person in the database
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeCreate);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository, times(0)).save(person);
     }
 
     @Test
@@ -130,6 +163,24 @@ class PersonResourceIT {
             .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
             .andExpect(jsonPath("$.[*].id").value(hasItem(person.getId().intValue())))
             .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllPeopleWithEagerRelationshipsIsEnabled() throws Exception {
+        when(personServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restPersonMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(personServiceMock, times(1)).findAllWithEagerRelationships(any());
+    }
+
+    @SuppressWarnings({ "unchecked" })
+    void getAllPeopleWithEagerRelationshipsIsNotEnabled() throws Exception {
+        when(personServiceMock.findAllWithEagerRelationships(any())).thenReturn(new PageImpl(new ArrayList<>()));
+
+        restPersonMockMvc.perform(get(ENTITY_API_URL + "?eagerload=true")).andExpect(status().isOk());
+
+        verify(personServiceMock, times(1)).findAllWithEagerRelationships(any());
     }
 
     @Test
@@ -182,6 +233,9 @@ class PersonResourceIT {
         assertThat(personList).hasSize(databaseSizeBeforeUpdate);
         Person testPerson = personList.get(personList.size() - 1);
         assertThat(testPerson.getName()).isEqualTo(UPDATED_NAME);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository).save(testPerson);
     }
 
     @Test
@@ -205,6 +259,9 @@ class PersonResourceIT {
         // Validate the Person in the database
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository, times(0)).save(person);
     }
 
     @Test
@@ -228,6 +285,9 @@ class PersonResourceIT {
         // Validate the Person in the database
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository, times(0)).save(person);
     }
 
     @Test
@@ -247,6 +307,9 @@ class PersonResourceIT {
         // Validate the Person in the database
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository, times(0)).save(person);
     }
 
     @Test
@@ -326,6 +389,9 @@ class PersonResourceIT {
         // Validate the Person in the database
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository, times(0)).save(person);
     }
 
     @Test
@@ -349,6 +415,9 @@ class PersonResourceIT {
         // Validate the Person in the database
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository, times(0)).save(person);
     }
 
     @Test
@@ -370,6 +439,9 @@ class PersonResourceIT {
         // Validate the Person in the database
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeUpdate);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository, times(0)).save(person);
     }
 
     @Test
@@ -388,5 +460,25 @@ class PersonResourceIT {
         // Validate the database contains one less item
         List<Person> personList = personRepository.findAll();
         assertThat(personList).hasSize(databaseSizeBeforeDelete - 1);
+
+        // Validate the Person in Elasticsearch
+        verify(mockPersonSearchRepository, times(1)).deleteById(person.getId());
+    }
+
+    @Test
+    @Transactional
+    void searchPerson() throws Exception {
+        // Configure the mock search repository
+        // Initialize the database
+        personRepository.saveAndFlush(person);
+        when(mockPersonSearchRepository.search(queryStringQuery("id:" + person.getId()))).thenReturn(Collections.singletonList(person));
+
+        // Search the person
+        restPersonMockMvc
+            .perform(get(ENTITY_SEARCH_API_URL + "?query=id:" + person.getId()))
+            .andExpect(status().isOk())
+            .andExpect(content().contentType(MediaType.APPLICATION_JSON_VALUE))
+            .andExpect(jsonPath("$.[*].id").value(hasItem(person.getId().intValue())))
+            .andExpect(jsonPath("$.[*].name").value(hasItem(DEFAULT_NAME)));
     }
 }

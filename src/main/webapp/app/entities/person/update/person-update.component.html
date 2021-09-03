@@ -17,14 +17,26 @@
         </div>
 
         <div class="form-group">
-          <label class="form-control-label" for="field_car">Car</label>
-          <select class="form-control" id="field_car" data-cy="car" name="car" formControlName="car">
+          <label class="form-control-label" for="field_user">User</label>
+          <select class="form-control" id="field_user" data-cy="user" name="user" formControlName="user">
             <option [ngValue]="null"></option>
             <option
-              [ngValue]="carOption.id === editForm.get('car')!.value?.id ? editForm.get('car')!.value : carOption"
-              *ngFor="let carOption of carsSharedCollection; trackBy: trackCarById"
+              [ngValue]="userOption.id === editForm.get('user')!.value?.id ? editForm.get('user')!.value : userOption"
+              *ngFor="let userOption of usersSharedCollection; trackBy: trackUserById"
             >
-              {{ carOption.id }}
+              {{ userOption.id }}
+            </option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label for="field_shoes">Shoe</label>
+          <select class="form-control" id="field_shoes" data-cy="shoe" multiple name="shoes" formControlName="shoes">
+            <option
+              [ngValue]="getSelectedShoe(shoeOption, editForm.get('shoes')!.value)"
+              *ngFor="let shoeOption of shoesSharedCollection; trackBy: trackShoeById"
+            >
+              {{ shoeOption.id }}
             </option>
           </select>
         </div>

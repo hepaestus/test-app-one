@@ -1,5 +1,7 @@
 package com.hepaestus.testappone.web.rest;
 
+import static org.elasticsearch.index.query.QueryBuilders.*;
+
 import com.hepaestus.testappone.repository.CarRepository;
 import com.hepaestus.testappone.service.CarService;
 import com.hepaestus.testappone.service.dto.CarDTO;
@@ -9,6 +11,9 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.StreamSupport;
+import javax.validation.Valid;
+import javax.validation.constraints.NotNull;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
@@ -48,7 +53,7 @@ public class CarResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PostMapping("/cars")
-    public ResponseEntity<CarDTO> createCar(@RequestBody CarDTO carDTO) throws URISyntaxException {
+    public ResponseEntity<CarDTO> createCar(@Valid @RequestBody CarDTO carDTO) throws URISyntaxException {
         log.debug("REST request to save Car : {}", carDTO);
         if (carDTO.getId() != null) {
             throw new BadRequestAlertException("A new car cannot already have an ID", ENTITY_NAME, "idexists");
@@ -71,7 +76,7 @@ public class CarResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PutMapping("/cars/{id}")
-    public ResponseEntity<CarDTO> updateCar(@PathVariable(value = "id", required = false) final Long id, @RequestBody CarDTO carDTO)
+    public ResponseEntity<CarDTO> updateCar(@PathVariable(value = "id", required = false) final Long id, @Valid @RequestBody CarDTO carDTO)
         throws URISyntaxException {
         log.debug("REST request to update Car : {}, {}", id, carDTO);
         if (carDTO.getId() == null) {
@@ -104,8 +109,10 @@ public class CarResource {
      * @throws URISyntaxException if the Location URI syntax is incorrect.
      */
     @PatchMapping(value = "/cars/{id}", consumes = "application/merge-patch+json")
-    public ResponseEntity<CarDTO> partialUpdateCar(@PathVariable(value = "id", required = false) final Long id, @RequestBody CarDTO carDTO)
-        throws URISyntaxException {
+    public ResponseEntity<CarDTO> partialUpdateCar(
+        @PathVariable(value = "id", required = false) final Long id,
+        @NotNull @RequestBody CarDTO carDTO
+    ) throws URISyntaxException {
         log.debug("REST request to partial update Car partially : {}, {}", id, carDTO);
         if (carDTO.getId() == null) {
             throw new BadRequestAlertException("Invalid id", ENTITY_NAME, "idnull");
@@ -129,10 +136,11 @@ public class CarResource {
     /**
      * {@code GET  /cars} : get all the cars.
      *
+     * @param eagerload flag to eager load entities from relationships (This is applicable for many-to-many).
      * @return the {@link ResponseEntity} with status {@code 200 (OK)} and the list of cars in body.
      */
     @GetMapping("/cars")
-    public List<CarDTO> getAllCars() {
+    public List<CarDTO> getAllCars(@RequestParam(required = false, defaultValue = "false") boolean eagerload) {
         log.debug("REST request to get all Cars");
         return carService.findAll();
     }
@@ -164,5 +172,18 @@ public class CarResource {
             .noContent()
             .headers(HeaderUtil.createEntityDeletionAlert(applicationName, false, ENTITY_NAME, id.toString()))
             .build();
+    }
+
+    /**
+     * {@code SEARCH  /_search/cars?query=:query} : search for the car corresponding
+     * to the query.
+     *
+     * @param query the query of the car search.
+     * @return the result of the search.
+     */
+    @GetMapping("/_search/cars")
+    public List<CarDTO> searchCars(@RequestParam String query) {
+        log.debug("REST request to search Cars for query {}", query);
+        return carService.search(query);
     }
 }

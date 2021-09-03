@@ -20,6 +20,11 @@ logging:
     org.hibernate.SQL: DEBUG
     com.hepaestus.testappone: DEBUG
 
+management:
+  health:
+    elasticsearch:
+      enabled: false
+
 spring:
   devtools:
     restart:
@@ -44,6 +49,10 @@ spring:
         prepStmtCacheSqlLimit: 2048
         useServerPrepStmts: true
   jpa:
+  data:
+  elasticsearch:
+    rest:
+      uris: http://localhost:9200
   liquibase:
     # Remove 'faker' if you do not want the sample data to be loaded automatically
     contexts: dev, faker
@@ -51,7 +60,7 @@ spring:
     host: localhost
     port: 25
     username:
-    password: testAppOne
+    password:
   messages:
     cache-duration: PT1S # 1 second, see the ISO 8601 standard
   thymeleaf:

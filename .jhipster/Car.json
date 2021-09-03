@@ -8,21 +8,26 @@
     {
       "fieldName": "model",
       "fieldType": "String"
+    },
+    {
+      "fieldName": "year",
+      "fieldType": "LocalDate"
     }
   ],
   "relationships": [
     {
-      "relationshipType": "one-to-one",
+      "relationshipType": "many-to-one",
       "otherEntityName": "driver",
       "otherEntityRelationshipName": "car",
-      "relationshipName": "driver",
-      "ownerSide": true
+      "relationshipValidateRules": "required",
+      "relationshipName": "driver"
     },
     {
-      "relationshipType": "one-to-many",
+      "relationshipType": "many-to-many",
       "otherEntityName": "person",
       "otherEntityRelationshipName": "car",
-      "relationshipName": "passengers"
+      "relationshipName": "passengers",
+      "ownerSide": true
     }
   ],
   "entityTableName": "car",
@@ -34,5 +39,6 @@
   "readOnly": false,
   "embedded": false,
   "applications": ["testAppOne"],
+  "searchEngine": "elasticsearch",
   "changelogDate": "20210824180528"
 }

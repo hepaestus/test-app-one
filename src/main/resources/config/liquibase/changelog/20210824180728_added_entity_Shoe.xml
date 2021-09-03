@@ -7,18 +7,15 @@
                         http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd">
 
     <!--
-        Added the entity Driver.
+        Added the entity Shoe.
     -->
     <changeSet id="20210824180728-1" author="jhipster">
-        <createTable tableName="driver">
+        <createTable tableName="shoe">
             <column name="id" type="bigint" autoIncrement="true">
                 <constraints primaryKey="true" nullable="false"/>
             </column>
-            <column name="license_number" type="varchar(255)">
+            <column name="shoe_size" type="integer">
                 <constraints nullable="true" />
-            </column>
-            <column name="person_id" type="bigint">
-                <constraints nullable="true" unique="true" uniqueConstraintName="ux_driver__person_id" />
             </column>
             <!-- jhipster-needle-liquibase-add-column - JHipster will add columns here -->
         </createTable>
@@ -36,11 +33,11 @@
     -->
     <changeSet id="20210824180728-1-data" author="jhipster" context="faker">
         <loadData
-                  file="config/liquibase/fake-data/driver.csv"
+                  file="config/liquibase/fake-data/shoe.csv"
                   separator=";"
-                  tableName="driver">
+                  tableName="shoe">
             <column name="id" type="numeric"/>
-            <column name="license_number" type="string"/>
+            <column name="shoe_size" type="numeric"/>
             <!-- jhipster-needle-liquibase-add-loadcolumn - JHipster (and/or extensions) can add load columns here -->
         </loadData>
     </changeSet>

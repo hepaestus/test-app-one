@@ -8,10 +8,32 @@
   ],
   "relationships": [
     {
-      "relationshipType": "many-to-one",
+      "relationshipType": "one-to-one",
+      "otherEntityName": "user",
+      "otherEntityRelationshipName": "person",
+      "relationshipName": "user",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "many-to-many",
+      "otherEntityName": "shoe",
+      "otherEntityRelationshipName": "person",
+      "relationshipName": "shoe",
+      "ownerSide": true
+    },
+    {
+      "relationshipType": "one-to-one",
+      "otherEntityName": "driver",
+      "otherEntityRelationshipName": "person",
+      "relationshipName": "driver",
+      "ownerSide": false
+    },
+    {
+      "relationshipType": "many-to-many",
       "otherEntityName": "car",
       "otherEntityRelationshipName": "passengers",
-      "relationshipName": "car"
+      "relationshipName": "car",
+      "ownerSide": false
     }
   ],
   "entityTableName": "person",
@@ -23,5 +45,6 @@
   "readOnly": false,
   "embedded": false,
   "applications": ["testAppOne"],
+  "searchEngine": "elasticsearch",
   "changelogDate": "20210824180628"
 }

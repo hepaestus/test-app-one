@@ -3,7 +3,9 @@
   "fields": [
     {
       "fieldName": "licenseNumber",
-      "fieldType": "String"
+      "fieldType": "String",
+      "fieldValidateRules": ["required", "pattern"],
+      "fieldValidateRulesPattern": "^[A-Z][a-z]{6}[0-9]{1}"
     }
   ],
   "relationships": [
@@ -11,8 +13,17 @@
       "relationshipType": "one-to-one",
       "otherEntityName": "person",
       "otherEntityRelationshipName": "driver",
+      "relationshipValidateRules": "required",
       "relationshipName": "person",
+      "otherEntityField": "name",
       "ownerSide": true
+    },
+    {
+      "relationshipType": "one-to-many",
+      "otherEntityName": "car",
+      "otherEntityRelationshipName": "driver",
+      "relationshipValidateRules": "required",
+      "relationshipName": "car"
     }
   ],
   "entityTableName": "driver",
@@ -24,5 +35,6 @@
   "readOnly": false,
   "embedded": false,
   "applications": ["testAppOne"],
-  "changelogDate": "20210824180728"
+  "searchEngine": "elasticsearch",
+  "changelogDate": "20210824180828"
 }

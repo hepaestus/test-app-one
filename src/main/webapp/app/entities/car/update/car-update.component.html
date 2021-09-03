@@ -22,14 +22,48 @@
         </div>
 
         <div class="form-group">
+          <label class="form-control-label" for="field_year">Year</label>
+          <div class="input-group">
+            <input
+              id="field_year"
+              data-cy="year"
+              type="text"
+              class="form-control"
+              name="year"
+              ngbDatepicker
+              #yearDp="ngbDatepicker"
+              formControlName="year"
+            />
+            <span class="input-group-append">
+              <button type="button" class="btn btn-secondary" (click)="yearDp.toggle()"><fa-icon icon="calendar-alt"></fa-icon></button>
+            </span>
+          </div>
+        </div>
+
+        <div class="form-group">
           <label class="form-control-label" for="field_driver">Driver</label>
           <select class="form-control" id="field_driver" data-cy="driver" name="driver" formControlName="driver">
-            <option [ngValue]="null"></option>
+            <option *ngIf="!editForm.get('driver')!.value" [ngValue]="null" selected></option>
             <option
               [ngValue]="driverOption.id === editForm.get('driver')!.value?.id ? editForm.get('driver')!.value : driverOption"
-              *ngFor="let driverOption of driversCollection; trackBy: trackDriverById"
+              *ngFor="let driverOption of driversSharedCollection; trackBy: trackDriverById"
             >
               {{ driverOption.id }}
+            </option>
+          </select>
+        </div>
+        <div *ngIf="editForm.get(['driver'])!.invalid && (editForm.get(['driver'])!.dirty || editForm.get(['driver'])!.touched)">
+          <small class="form-text text-danger" *ngIf="editForm.get(['driver'])?.errors?.required"> This field is required. </small>
+        </div>
+
+        <div class="form-group">
+          <label for="field_passengers">Passengers</label>
+          <select class="form-control" id="field_passengers" data-cy="passengers" multiple name="passengers" formControlName="passengers">
+            <option
+              [ngValue]="getSelectedPerson(personOption, editForm.get('passengers')!.value)"
+              *ngFor="let personOption of peopleSharedCollection; trackBy: trackPersonById"
+            >
+              {{ personOption.id }}
             </option>
           </select>
         </div>

@@ -8,6 +8,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.hepaestus.testappone.IntegrationTest;
 import com.hepaestus.testappone.domain.User;
 import com.hepaestus.testappone.repository.UserRepository;
+import com.hepaestus.testappone.repository.search.UserSearchRepository;
 import com.hepaestus.testappone.security.AuthoritiesConstants;
 import javax.persistence.EntityManager;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,6 +33,14 @@ class PublicUserResourceIT {
 
     @Autowired
     private UserRepository userRepository;
+
+    /**
+     * This repository is mocked in the com.hepaestus.testappone.repository.search test package.
+     *
+     * @see com.hepaestus.testappone.repository.search.UserSearchRepositoryMockConfiguration
+     */
+    @Autowired
+    private UserSearchRepository mockUserSearchRepository;
 
     @Autowired
     private EntityManager em;
