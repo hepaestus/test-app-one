@@ -7,6 +7,7 @@ This application was generated using JHipster 7.1.0, you can find documentation 
 ### MySQL Set up
 For this sample project run the following to create the necessary Mysql environment:
   ```bash
+  sudo mysqladmin create testAppOne
   sudo mysql -e "CREATE USER 'testy'@'localhost';"
   sudo mysql -e "GRANT ALL privileges ON testAppOne.* TO 'testy'@'localhost';"
   sudo mysql -e "ALTER USER 'testy'@'localhost' IDENTIFIED BY 'testAppOne';"
