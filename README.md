@@ -3,15 +3,59 @@
 This application was generated using JHipster 7.1.0, you can find documentation and help at [https://www.jhipster.tech/documentation-archive/v7.1.0](https://www.jhipster.tech/documentation-archive/v7.1.0).
 
 ## Development
-
+### Environment Setup
+Setup your local installation:
+```bash
+ mkdir testAppOne
+ cd testAppOne
+ git clone https://github.com/hepaestus/test-app-one.git
+ sudo docker-compose -f src/main/docker/elasticsearch.yml up
+``` 
 ### MySQL Set up
-For this sample project run the following to create the necessary Mysql environment:
+For this sample project run the following to create the necessary Mysql environment. Assumes Local Mysql install with admin privledges.
   ```bash
   sudo mysqladmin create testAppOne
   sudo mysql -e "CREATE USER 'testy'@'localhost';"
   sudo mysql -e "GRANT ALL privileges ON testAppOne.* TO 'testy'@'localhost';"
   sudo mysql -e "ALTER USER 'testy'@'localhost' IDENTIFIED BY 'testAppOne';"
   ```
+### Bug Test
+Start the Java Backend
+```bash
+$ ./mvnw
+...
+:: JHipster 🤓  :: Running Spring Boot 2.4.7 ::
+        ██╗ ██╗   ██╗ ████████╗ ███████╗   ██████╗ ████████╗ ████████╗ ███████╗
+        ██║ ██║   ██║ ╚══██╔══╝ ██╔═══██╗ ██╔════╝ ╚══██╔══╝ ██╔═════╝ ██╔═══██╗
+        ██║ ████████║    ██║    ███████╔╝ ╚█████╗     ██║    ██████╗   ███████╔╝
+  ██╗   ██║ ██╔═══██║    ██║    ██╔════╝   ╚═══██╗    ██║    ██╔═══╝   ██╔══██║
+  ╚██████╔╝ ██║   ██║ ████████╗ ██║       ██████╔╝    ██║    ████████╗ ██║  ╚██╗
+   ╚═════╝  ╚═╝   ╚═╝ ╚═══════╝ ╚═╝       ╚═════╝     ╚═╝    ╚═══════╝ ╚═╝   ╚═╝
+
+:: JHipster 🤓  :: Running Spring Boot 2.4.7 ::
+:: https://www.jhipster.tech ::
+
+2021-09-03 11:01:19.173  INFO 18847 --- [  restartedMain] com.hepaestus.testappone.TestAppOneApp   : Starting TestAppOneApp using Java 11.0.7 on medussa.local with PID 18847 (/home/pete/git/test-app-one/target/classes started by pete in /home/pete/git/test-app-one)
+2021-09-03 11:01:19.173 DEBUG 18847 --- [  restartedMain] com.hepaestus.testappone.TestAppOneApp   : Running with Spring Boot v2.4.7, Spring v5.3.8
+2021-09-03 11:01:19.173  INFO 18847 --- [  restartedMain] com.hepaestus.testappone.TestAppOneApp   : No active profile set, falling back to default profiles: dev,api-docs
+2021-09-03 11:01:19.609 DEBUG 18847 --- [  restartedMain] c.h.testappone.config.WebConfigurer      : Registering CORS filter
+2021-09-03 11:01:19.625  INFO 18847 --- [  restartedMain] c.h.testappone.config.WebConfigurer      : Web application fully configured
+2021-09-03 11:01:19.642 DEBUG 18847 --- [  restartedMain] c.ehcache.core.Ehcache-usersByLogin      : Initialize successful.
+2021-09-03 11:01:19.643 DEBUG 18847 --- [  restartedMain] c.ehcache.core.Ehcache-usersByEmail      : Initialize successful.
+2021-09-03 11:01:19.644 DEBUG 18847 --- [  restartedMain] c.e.c.E.h.testappone.domain.User         : Initialize successful.
+
+:: https://www.jhipster.tech ::
+
+2021-09-03 11:01:19.173  INFO 18847 --- [  restartedMain] com.hepaestus.testappone.TestAppOneApp   : Starting TestAppOneApp using Java 11.0.7 on medussa.local with PID 18847 (/home/pete/git/test-app-one/target/classes started by pete in /home/pete/git/test-app-one)
+2021-09-03 11:01:19.173 DEBUG 18847 --- [  restartedMain] com.hepaestus.testappone.TestAppOneApp   : Running with Spring Boot v2.4.7, Spring v5.3.8
+2021-09-03 11:01:19.173  INFO 18847 --- [  restartedMain] com.hepaestus.testappone.TestAppOneApp   : No active profile set, falling back to default profiles: dev,api-docs
+2021-09-03 11:01:19.609 DEBUG 18847 --- [  restartedMain] c.h.testappone.config.WebConfigurer      : Registering CORS filter
+2021-09-03 11:01:19.625  INFO 18847 --- [  restartedMain] c.h.testappone.config.WebConfigurer      : Web application fully configured
+2021-09-03 11:01:19.642 DEBUG 18847 --- [  restartedMain] c.ehcache.core.Ehcache-usersByLogin      : Initialize successful.
+2021-09-03 11:01:19.643 DEBUG 18847 --- [  restartedMain] c.ehcache.core.Ehcache-usersByEmail      : Initialize successful.
+2021-09-03 11:01:19.644 DEBUG 18847 --- [  restartedMain] c.e.c.E.h.testappone.domain.User         : Initialize successful.
+...
+```
 
 ### JH Setup
 Before you can build this project, you must install and configure the following dependencies on your machine:
