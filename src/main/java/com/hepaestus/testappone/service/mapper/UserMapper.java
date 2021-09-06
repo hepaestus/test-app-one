@@ -97,6 +97,7 @@ public class UserMapper {
         }
         UserDTO userDto = new UserDTO();
         userDto.setId(user.getId());
+        userDto.setLogin(user.getLogin());
         return userDto;
     }
 

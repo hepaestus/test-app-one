@@ -39,6 +39,7 @@ public class Car implements Serializable {
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "person", "cars" }, allowSetters = true)
+    @Field(type = FieldType.Nested, ignoreFields = { "driver" })
     private Driver driver;
 
     @ManyToMany
@@ -49,7 +50,7 @@ public class Car implements Serializable {
         inverseJoinColumns = @JoinColumn(name = "passengers_id")
     )
     @JsonIgnoreProperties(value = { "user", "shoes", "driver", "cars" }, allowSetters = true)
-    @Field(type = FieldType.Nested, ignoreFields = { "user", "shoes", "driver", "cars" })
+    @Field(type = FieldType.Object, ignoreFields = { "passengers" })
     private Set<Person> passengers = new HashSet<>();
 
     // jhipster-needle-entity-add-field - JHipster will add fields here
