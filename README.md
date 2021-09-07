@@ -9,6 +9,7 @@ Setup your local installation:
  mkdir testAppOne
  cd testAppOne
  git clone https://github.com/hepaestus/test-app-one.git
+ cd test-app-one
  sudo docker-compose -f src/main/docker/elasticsearch.yml up
 ``` 
 ### MySQL Set up
