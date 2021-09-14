@@ -4,15 +4,16 @@ import com.codahale.metrics.annotation.Timed;
 import com.hepaestus.testappone.security.AuthoritiesConstants;
 import com.hepaestus.testappone.security.SecurityUtils;
 import com.hepaestus.testappone.service.ElasticsearchIndexService;
-import com.hepaestus.testappone.web.rest.util.HeaderUtil;
 import java.net.URISyntaxException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.annotation.Secured;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import tech.jhipster.web.util.HeaderUtil;
 
 /**
  * REST controller for managing Elasticsearch index.
@@ -29,6 +30,9 @@ public class ElasticsearchIndexResource {
         this.elasticsearchIndexService = elasticsearchIndexService;
     }
 
+    @Value("${jhipster.clientApp.name}")
+    private String applicationName;
+
     /**
      * POST  /elasticsearch/index -> Reindex all Elasticsearch documents
      */
@@ -38,6 +42,6 @@ public class ElasticsearchIndexResource {
     public ResponseEntity<Void> reindexAll() throws URISyntaxException {
         log.info("REST request to reindex Elasticsearch by user : {}", SecurityUtils.getCurrentUserLogin());
         elasticsearchIndexService.reindexAll();
-        return ResponseEntity.accepted().headers(HeaderUtil.createAlert("elasticsearch.reindex.accepted", null)).build();
+        return ResponseEntity.accepted().headers(HeaderUtil.createAlert(applicationName, "elasticsearch.reindex.accepted", "null")).build();
     }
 }

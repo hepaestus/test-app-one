@@ -11,9 +11,11 @@ import org.mapstruct.*;
 @Mapper(componentModel = "spring", uses = { DriverMapper.class, PersonMapper.class })
 public interface CarMapper extends EntityMapper<CarDTO, Car> {
     @Mapping(target = "driver", source = "driver", qualifiedByName = "id")
-    @Mapping(target = "passengers", source = "passengers", qualifiedByName = "idSet")
+    //  @Mapping(target = "passengers", source = "passengers", qualifiedByName = "idSet")
     CarDTO toDto(Car s);
 
-    @Mapping(target = "removePassengers", ignore = true)
-    Car toEntity(CarDTO carDTO);
+    @Named("id")
+    @BeanMapping(ignoreByDefault = true)
+    @Mapping(target = "id", source = "id")
+    CarDTO toDtoId(Car car);
 }

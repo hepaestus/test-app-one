@@ -61,6 +61,9 @@ public class Person implements Serializable {
     }
 
     public String getName() {
+        if (this.name == null) {
+            this.name = this.user.getFirstName() + " " + this.user.getLastName();
+        }
         return this.name;
     }
 

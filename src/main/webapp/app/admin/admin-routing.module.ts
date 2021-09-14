@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { testAppOneAppElasticsearchReindexModule } from './elasticsearch-reindex/elasticsearch-reindex.module';
+
 /* jhipster-needle-add-admin-module-import - JHipster will add admin modules imports here */
 
 @NgModule({

@@ -64,7 +64,7 @@
           <td>{{ driver.licenseNumber }}</td>
           <td>
             <div *ngIf="driver.person">
-              <a [routerLink]="['/person', driver.person?.id, 'view']">{{ driver.person?.name }}</a>
+              <a [routerLink]="['/person', driver.person.id, 'view']">{{ driver.person?.name }}</a>
             </div>
           </td>
           <td class="text-right">

@@ -2,9 +2,11 @@ package com.hepaestus.testappone.service;
 
 import com.codahale.metrics.annotation.Timed;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.hepaestus.testappone.domain.*;
 import com.hepaestus.testappone.repository.*;
 import com.hepaestus.testappone.repository.search.*;
+import com.tdunning.math.stats.Sort;
 import java.beans.IntrospectionException;
 import java.beans.PropertyDescriptor;
 import java.io.Serializable;
@@ -17,13 +19,14 @@ import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 import javax.persistence.ManyToMany;
-import org.elasticsearch.indices.IndexAlreadyExistsException;
+import org.elasticsearch.ResourceAlreadyExistsException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.elasticsearch.core.ElasticsearchTemplate;
+import org.springframework.data.elasticsearch.core.ElasticsearchOperations;
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.scheduling.annotation.Async;
@@ -58,7 +61,7 @@ public class ElasticsearchIndexService {
 
     private final UserSearchRepository userSearchRepository;
 
-    private final ElasticsearchTemplate elasticsearchTemplate;
+    private final ElasticsearchOperations elasticsearchTemplate;
 
     public ElasticsearchIndexService(
         UserRepository userRepository,
@@ -71,7 +74,7 @@ public class ElasticsearchIndexService {
         PersonSearchRepository personSearchRepository,
         ShoeRepository shoeRepository,
         ShoeSearchRepository shoeSearchRepository,
-        ElasticsearchTemplate elasticsearchTemplate
+        ElasticsearchOperations elasticsearchTemplate
     ) {
         this.userRepository = userRepository;
         this.userSearchRepository = userSearchRepository;
@@ -92,6 +95,7 @@ public class ElasticsearchIndexService {
         if (reindexLock.tryLock()) {
             try {
                 reindexForClass(Car.class, carRepository, carSearchRepository);
+
                 reindexForClass(Driver.class, driverRepository, driverSearchRepository);
                 reindexForClass(Person.class, personRepository, personSearchRepository);
                 reindexForClass(Shoe.class, shoeRepository, shoeSearchRepository);
@@ -115,7 +119,7 @@ public class ElasticsearchIndexService {
         elasticsearchTemplate.deleteIndex(entityClass);
         try {
             elasticsearchTemplate.createIndex(entityClass);
-        } catch (IndexAlreadyExistsException e) {
+        } catch (ResourceAlreadyExistsException e) {
             // Do nothing. Index was already concurrently recreated by some other service.
         }
         elasticsearchTemplate.putMapping(entityClass);
@@ -127,13 +131,15 @@ public class ElasticsearchIndexService {
                 .filter(field -> field.getAnnotation(ManyToMany.class) != null)
                 .filter(field -> field.getAnnotation(ManyToMany.class).mappedBy().isEmpty())
                 .filter(field -> field.getAnnotation(JsonIgnore.class) == null)
+                .filter(field -> field.getAnnotation(JsonIgnoreProperties.class) == null) // This line Added By Pete
                 .map(
                     field -> {
+                        log.debug("#### ELASTICSEARCH FIELD " + field.getName());
                         try {
                             return new PropertyDescriptor(field.getName(), entityClass).getReadMethod();
                         } catch (IntrospectionException e) {
                             log.error(
-                                "Error retrieving getter for class {}, field {}. Field will NOT be indexed",
+                                "#### Error retrieving getter for class {}, field {}. Field will NOT be indexed",
                                 entityClass.getSimpleName(),
                                 field.getName(),
                                 e
@@ -147,7 +153,7 @@ public class ElasticsearchIndexService {
 
             int size = 100;
             for (int i = 0; i <= jpaRepository.count() / size; i++) {
-                Pageable page = new PageRequest(i, size);
+                Pageable page = PageRequest.of(i, size);
                 log.info("Indexing page {} of {}, size {}", i, jpaRepository.count() / size, size);
                 Page<T> results = jpaRepository.findAll(page);
                 results.map(
@@ -156,17 +162,18 @@ public class ElasticsearchIndexService {
                         relationshipGetters.forEach(
                             method -> {
                                 try {
+                                    log.debug("#### FOREACH RELATIONSHIP GETTERS");
                                     // eagerly load the relationship set
                                     ((Set) method.invoke(result)).size();
                                 } catch (Exception ex) {
-                                    log.error(ex.getMessage());
+                                    log.error("#### ERROR : {}", ex.getMessage());
                                 }
                             }
                         );
                         return result;
                     }
                 );
-                elasticsearchRepository.save(results.getContent());
+                elasticsearchRepository.saveAll(results.getContent());
             }
         }
         log.info("Elasticsearch: Indexed all rows for {}", entityClass.getSimpleName());

@@ -9,13 +9,14 @@ import {
   ElasticsearchReindexService,
   elasticsearchReindexRoute,
 } from './';
+import { ElasticsearchReindexSelectedModalComponent } from './elasticsearch-reindex-selected-modal.component';
 
 const ADMIN_ROUTES = [elasticsearchReindexRoute];
 
 @NgModule({
-  imports: [SharedModule, RouterModule.forRoot(ADMIN_ROUTES, { useHash: true })],
-  declarations: [ElasticsearchReindexComponent, ElasticsearchReindexModalComponent],
-  entryComponents: [ElasticsearchReindexModalComponent],
+  imports: [SharedModule, RouterModule.forChild(ADMIN_ROUTES)],
+  declarations: [ElasticsearchReindexComponent, ElasticsearchReindexModalComponent, ElasticsearchReindexSelectedModalComponent],
+  entryComponents: [ElasticsearchReindexModalComponent, ElasticsearchReindexSelectedModalComponent],
   providers: [ElasticsearchReindexService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })

@@ -69,12 +69,12 @@
           <td>{{ car.year | formatMediumDate }}</td>
           <td>
             <div *ngIf="car.driver">
-              <a [routerLink]="['/driver', car.driver?.id, 'view']">{{ car.driver?.id }}</a>
+              <a [routerLink]="['/driver', car.driver?.id, 'view']">{{ car.driver?.person?.name }}</a>
             </div>
           </td>
           <td>
             <span *ngFor="let passengers of car.passengers; let last = last">
-              <a class="form-control-static" [routerLink]="['/person', passengers.id, 'view']">{{ passengers.id }}</a
+              <a class="form-control-static" [routerLink]="['/person', passengers.id, 'view']">{{ passengers.name }}</a
               >{{ last ? '' : ', ' }}
             </span>
           </td>
