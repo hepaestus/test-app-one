@@ -1,6 +1,6 @@
 package com.hepaestus.testappone.service;
 
-import static org.elasticsearch.index.query.QueryBuilders.*;
+import static org.elasticsearch.index.query.QueryBuilders.queryStringQuery;
 
 import com.hepaestus.testappone.domain.Car;
 import com.hepaestus.testappone.repository.CarRepository;
@@ -47,12 +47,29 @@ public class CarService {
      * @return the persisted entity.
      */
     public CarDTO save(CarDTO carDTO) {
-        log.debug("Request to save Car : {}", carDTO);
-        Car car = carMapper.toEntity(carDTO);
-        car = carRepository.save(car);
-        CarDTO result = carMapper.toDto(car);
-        carSearchRepository.save(car);
-        return result;
+        Car car = new Car();
+        try {
+            log.debug("Request to save Car : {}", carDTO);
+            car = carMapper.toEntity(carDTO);
+            car = carRepository.save(car);
+        } catch (Exception e) {
+            log.error("#### ERROR SAVE CAR DATABASE : " + e.getMessage());
+        }
+
+        try {
+            log.debug("Request to save to Elasticsearch Car  : {}", carDTO);
+            if (car.getId() != null) {
+                CarDTO result = carMapper.toDto(car);
+                carSearchRepository.save(car);
+                return result;
+            } else {
+                log.error("#### ERROR SAVE NULL CAR");
+            }
+        } catch (Exception e) {
+            log.error("#### ERROR SAVE CAR ELASTICSEARCH : " + e.getMessage());
+            return null;
+        }
+        return null;
     }
 
     /**

@@ -7,8 +7,9 @@ import { DEBUG_INFO_ENABLED } from 'app/app.constants';
 import { Authority } from 'app/config/authority.constants';
 
 import { UserRouteAccessService } from 'app/core/auth/user-route-access.service';
+import { elasticsearchReindexRoute } from './admin/elasticsearch-reindex';
 
-const LAYOUT_ROUTES = [navbarRoute, ...errorRoute];
+const LAYOUT_ROUTES = [navbarRoute, elasticsearchReindexRoute, ...errorRoute];
 
 @NgModule({
   imports: [

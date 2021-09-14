@@ -29,13 +29,13 @@
         <dt><span>Driver</span></dt>
         <dd>
           <div *ngIf="car.driver">
-            <a [routerLink]="['/driver', car.driver?.id, 'view']">{{ car.driver?.id }}</a>
+            <a [routerLink]="['/driver', car.driver?.id, 'view']">{{ car.driver?.person?.name }}</a>
           </div>
         </dd>
         <dt><span>Passengers</span></dt>
         <dd>
           <span *ngFor="let passengers of car.passengers; let last = last">
-            <a [routerLink]="['/person', passengers?.id, 'view']">{{ passengers.id }}</a
+            <a [routerLink]="['/person', passengers?.id, 'view']">{{ passengers.name }}</a
             >{{ last ? '' : ', ' }}
           </span>
         </dd>

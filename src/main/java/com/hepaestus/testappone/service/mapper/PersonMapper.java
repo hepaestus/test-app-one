@@ -19,12 +19,20 @@ public interface PersonMapper extends EntityMapper<PersonDTO, Person> {
     @Mapping(target = "id", source = "id")
     Set<PersonDTO> toDtoIdSet(Set<Person> person);
 
-    @Mapping(target = "removeShoe", ignore = true)
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "shoes", source = "shoes")
     Person toEntity(PersonDTO personDTO);
+
+    @Mapping(target = "id", source = "id")
+    @Mapping(target = "name", source = "name")
+    @Mapping(target = "shoes", source = "shoes")
+    Person toEntity(PersonDTO personDTO, @Context CycleAvoidingMappingContext cycleAvoidingMappingContext);
 
     @Named("name")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
     @Mapping(target = "name", source = "name")
+    @Mapping(target = "shoes", source = "shoes")
     PersonDTO toDtoName(Person person);
 }

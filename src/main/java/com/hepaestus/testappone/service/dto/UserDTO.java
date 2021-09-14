@@ -8,8 +8,10 @@ import com.hepaestus.testappone.domain.User;
 public class UserDTO {
 
     private Long id;
-
     private String login;
+    private String email;
+    private String firstName;
+    private String lastName;
 
     public UserDTO() {
         // Empty constructor needed for Jackson.
@@ -19,6 +21,9 @@ public class UserDTO {
         this.id = user.getId();
         // Customize it here if you need, or not, firstName/lastName/etc
         this.login = user.getLogin();
+        this.email = user.getEmail();
+        this.firstName = user.getFirstName();
+        this.lastName = user.getLastName();
     }
 
     public Long getId() {
@@ -43,6 +48,9 @@ public class UserDTO {
         return "UserDTO{" +
             "id='" + id + '\'' +
             ", login='" + login + '\'' +
+            ", email='" + email + '\'' +
+            ", firstName='" + firstName + '\'' +
+            ", lastName='" + lastName + '\'' +
             "}";
     }
 }

@@ -2,6 +2,10 @@ package com.hepaestus.testappone.service.mapper;
 
 import com.hepaestus.testappone.domain.Authority;
 import com.hepaestus.testappone.domain.User;
+import com.hepaestus.testappone.repository.UserRepository;
+import com.hepaestus.testappone.service.MailService;
+import com.hepaestus.testappone.service.ShoeService;
+import com.hepaestus.testappone.service.UserService;
 import com.hepaestus.testappone.service.dto.AdminUserDTO;
 import com.hepaestus.testappone.service.dto.UserDTO;
 import java.util.*;
@@ -9,16 +13,27 @@ import java.util.stream.Collectors;
 import org.mapstruct.BeanMapping;
 import org.mapstruct.Mapping;
 import org.mapstruct.Named;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.handler.UserRoleAuthorizationInterceptor;
 
 /**
  * Mapper for the entity {@link User} and its DTO called {@link UserDTO}.
  *
- * Normal mappers are generated using MapStruct, this one is hand-coded as MapStruct
- * support is still in beta, and requires a manual step with an IDE.
+ * Normal mappers are generated using MapStruct, this one is hand-coded as
+ * MapStruct support is still in beta, and requires a manual step with an IDE.
  */
 @Service
 public class UserMapper {
+
+    private final Logger log = LoggerFactory.getLogger(UserMapper.class);
+
+    private final UserRepository userRepository;
+
+    public UserMapper(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
 
     public List<UserDTO> usersToUserDTOs(List<User> users) {
         return users.stream().filter(Objects::nonNull).map(this::userToUserDTO).collect(Collectors.toList());
@@ -42,6 +57,7 @@ public class UserMapper {
 
     public User userDTOToUser(AdminUserDTO userDTO) {
         if (userDTO == null) {
+            log.error("#### ERROR : Null User Passsed");
             return null;
         } else {
             User user = new User();
@@ -81,29 +97,36 @@ public class UserMapper {
 
     public User userFromId(Long id) {
         if (id == null) {
+            log.error("#### ERROR : Null User Passsed");
             return null;
         }
-        User user = new User();
-        user.setId(id);
+        Optional<User> userOpt = userRepository.findById(id);
+        User user = userOpt.get();
         return user;
     }
 
     @Named("id")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    public UserDTO toDtoId(User user) {
-        if (user == null) {
+    public UserDTO toDtoId(User user) throws Exception {
+        try {
+            if (user.getId() == null) {
+                log.error("#### ERROR : Null User Passsed");
+                throw new Exception("NULL USER PASSSED TO toDtoId() ");
+            }
+            Optional<User> userLookup = userRepository.findById(user.getId());
+            UserDTO userDto = this.userToUserDTO(userLookup.get());
+            return userDto;
+        } catch (Exception e) {
+            log.error("#### ERROR : " + e.getCause());
             return null;
         }
-        UserDTO userDto = new UserDTO();
-        userDto.setId(user.getId());
-        return userDto;
     }
 
     @Named("idSet")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
-    public Set<UserDTO> toDtoIdSet(Set<User> users) {
+    public Set<UserDTO> toDtoIdSet(Set<User> users) throws Exception {
         if (users == null) {
             return Collections.emptySet();
         }
@@ -122,12 +145,16 @@ public class UserMapper {
     @Mapping(target = "login", source = "login")
     public UserDTO toDtoLogin(User user) {
         if (user == null) {
+            log.error("#### ERROR : Null User Passsed");
             return null;
         }
-        UserDTO userDto = new UserDTO();
-        userDto.setId(user.getId());
-        userDto.setLogin(user.getLogin());
-        return userDto;
+        Optional<User> userLookup = userRepository.findOneByLogin(user.getLogin());
+        User foundUser = userLookup.get();
+        UserDTO userDTO = this.userToUserDTO(foundUser);
+        // UserDTO userDto = new UserDTO();
+        // userDto.setId(user.getId());
+        // userDto.setLogin(user.getLogin()); // Added by Pete.
+        return userDTO;
     }
 
     @Named("loginSet")

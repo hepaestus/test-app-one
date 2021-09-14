@@ -15,5 +15,10 @@ public interface DriverMapper extends EntityMapper<DriverDTO, Driver> {
     @Named("id")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
+    @Mapping(target = "licenseNumber", source = "licenseNumber")
+    @Mapping(target = "person", source = "person", qualifiedByName = "name")
     DriverDTO toDtoId(Driver driver);
+    //@Mapping(target = "id", source = "id")
+    //@Mapping(target = "licenseNumber", source = "licenseNumber")
+    //DriverDTO toDtoWithPerson(Driver driver);
 }
